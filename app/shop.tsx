@@ -83,7 +83,6 @@ import {
   UserSession,
   UserRole,
   ROLE_PERMISSIONS,
-  DEFAULT_ACCOUNTS,
   hasPermission
 } from '../lib/auth';
 
@@ -174,8 +173,8 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   // Authentication & Access Control (RBAC) state
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('admin@laurinita.ao');
-  const [loginPassword, setLoginPassword] = useState('Admin@2026!');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -774,11 +773,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
     setView('shop');
     setUserMenuOpen(false);
     setNotice('Sessão terminada.');
-  }
-
-  function fillDemoAccount(account: typeof DEFAULT_ACCOUNTS[0]) {
-    setLoginEmail(account.email);
-    setLoginPassword(account.password);
   }
 
   // Stock manipulation and management actions
@@ -1874,7 +1868,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                   </div>
                   <h2>Entrar no Sistema</h2>
                   <p>
-                    Acesso exclusivo ao Painel de Gestão da Laurinita Distribuidora Ltda. Selecione uma conta para autenticação ou insira as suas credenciais:
+                    Acesso exclusivo ao Painel de Gestão da Laurinita Distribuidora Ltda. Insira as suas credenciais corporativas para continuar:
                   </p>
                 </div>
 
@@ -1883,25 +1877,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     {loginError}
                   </div>
                 )}
-
-                <div className="quick-roles-grid">
-                  {DEFAULT_ACCOUNTS.map((acc) => (
-                    <button
-                      key={acc.email}
-                      type="button"
-                      className={`quick-role-btn ${loginEmail === acc.email ? 'active' : ''}`}
-                      onClick={() => fillDemoAccount(acc)}
-                    >
-                      <div className="role-btn-top">
-                        <b>{acc.name}</b>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: 20, backgroundColor: ROLE_PERMISSIONS[acc.role]?.color || '#071326', color: '#ffffff' }}>
-                          {ROLE_PERMISSIONS[acc.role]?.badgeLabel}
-                        </span>
-                      </div>
-                      <small>{acc.email} · {acc.description}</small>
-                    </button>
-                  ))}
-                </div>
 
                 <form onSubmit={handleLogin}>
                   <div className="form-field-group">
