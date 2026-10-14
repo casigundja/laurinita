@@ -54,9 +54,12 @@ async function ensureDbInitialized(db: NonNullable<typeof env.DB>) {
       await db.batch(staffStatements);
     }
 
-    // 2. Clean up any obsolete dummy products from initial starter
+    // 2. Clean up any obsolete dummy products and test orders
     await db.prepare('DELETE FROM products WHERE id LIKE "p%"').run();
     await db.prepare('DELETE FROM movements WHERE product_id LIKE "p%"').run();
+    await db.prepare('DELETE FROM movements WHERE order_id IS NOT NULL').run();
+    await db.prepare('DELETE FROM items').run();
+    await db.prepare('DELETE FROM orders').run();
 
     // 3. Ensure all product images point to local transparent PNGs
     await db.prepare('UPDATE products SET image = "/products/" || id || ".png" WHERE image LIKE "%amazonaws%" OR image LIKE "%treinta%"').run();
@@ -531,6 +534,21 @@ export async function POST(req: Request) {
       }
 
       return json({ ok: true, count: catalog.length });
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: CLEAR_ORDERS (Limpar todas as encomendas de teste)
+    // -------------------------------------------------------------
+    if (body.action === 'clear_orders') {
+      if (!['admin', 'manager'].includes(currentUser.role)) {
+        return json({ error: 'Permissão insuficiente para limpar encomendas.' }, 403);
+      }
+
+      await db.prepare('DELETE FROM movements WHERE order_id IS NOT NULL').run();
+      await db.prepare('DELETE FROM items').run();
+      await db.prepare('DELETE FROM orders').run();
+
+      return json({ ok: true, message: 'Todas as encomendas de teste foram removidas com sucesso.' });
     }
 
     return json({ error: 'Ação não reconhecida.' }, 400);
