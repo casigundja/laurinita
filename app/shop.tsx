@@ -1309,10 +1309,10 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                 </div>
                 <div className="user-btn-text">
                   <div className="user-btn-name">
-                    {currentUser ? `Olá, ${currentUser.name.split(' ')[0]}` : 'Iniciar Sessão'}
+                    {currentUser ? `Olá, ${currentUser.name.split(' ')[0]}` : 'Entrar no Sistema'}
                   </div>
                   <div className="user-btn-role">
-                    {currentUser ? ROLE_PERMISSIONS[currentUser.role]?.badgeLabel : 'Conta Hospitalar'}
+                    {currentUser ? ROLE_PERMISSIONS[currentUser.role]?.badgeLabel : 'Painel Geral'}
                   </div>
                 </div>
                 <ChevronDown size={12} color="#94a3b8" />
@@ -1372,8 +1372,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                       </div>
                     ) : (
                       <div>
-                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, marginBottom: 6 }}>Conta Administrativa & Hospitalar</h4>
-                        <p style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 12 }}>
+                        <p style={{ fontSize: '0.78rem', color: isDarkMode ? '#cbd5e1' : '#475569', marginBottom: 12, lineHeight: 1.45 }}>
                           Aceda para emitir faturas, gerir o catálogo de 80 produtos e aceder ao dashboard.
                         </p>
                         <button
@@ -2999,7 +2998,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
             </button>
 
             <h3 style={{ fontSize: '1.3rem', fontWeight: 900, marginBottom: 8, textAlign: 'center' }}>
-              Iniciar Sessão
+              Entrar no Sistema
             </h3>
             <p style={{ fontSize: '0.78rem', color: '#64748b', textAlign: 'center', marginBottom: 20 }}>
               Acesso exclusivo para colaboradores e clientes da Laurinita Distribuidora Ltda.
