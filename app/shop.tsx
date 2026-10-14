@@ -177,6 +177,8 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [onlyDiscount, setOnlyDiscount] = useState(false);
+  const [shopPage, setShopPage] = useState(1);
+  const [shopRowsPerPage, setShopRowsPerPage] = useState(15);
 
   // Favorites state
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -439,6 +441,28 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
     }
     return result;
   }, [products, selectedCategory, searchQuery, sortOption, onlyAvailable, onlyDiscount]);
+
+  // Shop Pagination computed values
+  const totalShopPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredProducts.length / shopRowsPerPage));
+  }, [filteredProducts.length, shopRowsPerPage]);
+
+  const paginatedShopProducts = useMemo(() => {
+    const start = (shopPage - 1) * shopRowsPerPage;
+    return filteredProducts.slice(start, start + shopRowsPerPage);
+  }, [filteredProducts, shopPage, shopRowsPerPage]);
+
+  const startShopItem = useMemo(() => {
+    return filteredProducts.length === 0 ? 0 : (shopPage - 1) * shopRowsPerPage + 1;
+  }, [filteredProducts.length, shopPage, shopRowsPerPage]);
+
+  const endShopItem = useMemo(() => {
+    return Math.min(shopPage * shopRowsPerPage, filteredProducts.length);
+  }, [filteredProducts.length, shopPage, shopRowsPerPage]);
+
+  useEffect(() => {
+    setShopPage(1);
+  }, [selectedCategory, searchQuery, onlyAvailable, onlyDiscount, sortOption, shopRowsPerPage]);
 
   // Admin Dashboard Computed Values
   const adminCategories = useMemo(() => {
@@ -1550,7 +1574,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
               </div>
             ) : (
               <div className="products-boti-grid">
-                {filteredProducts.map((p) => {
+                {paginatedShopProducts.map((p) => {
                   const isFav = favorites.includes(p.id);
                   const isAvailable = p.isAvailable && p.stock > 0;
 
@@ -1630,6 +1654,100 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     </article>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Shop Pagination Toolbar */}
+            {filteredProducts.length > 0 && (
+              <div
+                className="admin-pagination-bar"
+                style={{
+                  marginTop: 24,
+                  borderRadius: 18,
+                  backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff',
+                  border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                }}
+              >
+                <div className="admin-pagination-left">
+                  <span className="admin-pagination-label">Linhas por página:</span>
+                  <div className="admin-pagination-select-wrap">
+                    <select
+                      className="admin-pagination-select"
+                      value={shopRowsPerPage}
+                      onChange={(e) => setShopRowsPerPage(Number(e.target.value))}
+                    >
+                      <option value={10}>10</option>
+                      <option value={15}>15</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="admin-pagination-range">
+                  {startShopItem}–{endShopItem} de {filteredProducts.length}
+                </div>
+
+                <div className="admin-pagination-nav">
+                  <button
+                    type="button"
+                    className="admin-page-nav-btn"
+                    onClick={() => {
+                      setShopPage(1);
+                      const el = document.getElementById('catalogo');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    disabled={shopPage <= 1}
+                    title="Primeira página"
+                    aria-label="Primeira página"
+                  >
+                    <ChevronFirst size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-page-nav-btn"
+                    onClick={() => {
+                      setShopPage((prev) => Math.max(1, prev - 1));
+                      const el = document.getElementById('catalogo');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    disabled={shopPage <= 1}
+                    title="Página anterior"
+                    aria-label="Página anterior"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-page-nav-btn"
+                    onClick={() => {
+                      setShopPage((prev) => Math.min(totalShopPages, prev + 1));
+                      const el = document.getElementById('catalogo');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    disabled={shopPage >= totalShopPages}
+                    title="Próxima página"
+                    aria-label="Próxima página"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-page-nav-btn"
+                    onClick={() => {
+                      setShopPage(totalShopPages);
+                      const el = document.getElementById('catalogo');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    disabled={shopPage >= totalShopPages}
+                    title="Última página"
+                    aria-label="Última página"
+                  >
+                    <ChevronLast size={18} />
+                  </button>
+                </div>
               </div>
             )}
           </section>
