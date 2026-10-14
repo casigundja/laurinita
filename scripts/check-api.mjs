@@ -7,6 +7,8 @@ async function get(){const r=await fetch(base+'/api/store',{headers:{Cookie:cook
 async function post(b,expected=200){const r=await fetch(base+'/api/store',{method:'POST',headers:{Cookie:cookie,Origin:base,'Content-Type':'application/json'},body:JSON.stringify(b)});const d=await r.json();assert.equal(r.status,expected,JSON.stringify(d));return d;}
 const anonymous=await fetch(base+'/api/store',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({action:'seed'})});assert.equal(anonymous.status,401);
 await get();await post({action:'seed'});const initial=await get();assert.equal(initial.user.role,'admin');const before=initial.products.find(p=>p.id==='p1').stock;
+await post({action:'product',product:{...initial.products.find(p=>p.id==='p1'),stock:999}});assert.equal((await get()).products.find(p=>p.id==='p1').stock,before);
+await post({action:'edit_movement'},400);await post({action:'delete_movement'},400);
 const payload={action:'checkout',key:crypto.randomUUID(),customer:'Cliente de teste',address:'Endereço de teste',items:[{id:'p1',quantity:3}]};
 const order=await post(payload);assert.equal((await get()).products.find(p=>p.id==='p1').stock,before-3);
 const duplicate=await post(payload);assert.equal(duplicate.order.id,order.order.id);assert.equal((await get()).products.find(p=>p.id==='p1').stock,before-3);

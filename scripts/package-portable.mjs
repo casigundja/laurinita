@@ -25,7 +25,28 @@ try{
  const attribution=built.artifact_metadata??source.artifact_metadata;
  if(attribution!=null)hosting.artifact_metadata=attribution;
  fs.writeFileSync(hostingPath,JSON.stringify(hosting,null,2)+'\n');
- if(fs.existsSync(path.join(project,'drizzle')))fs.cpSync(path.join(project,'drizzle'),path.join(output,'.openai','drizzle'),{recursive:true});
+ if(fs.existsSync(path.join(project,'drizzle'))){
+  const migrations=path.join(output,'.openai','drizzle');
+  fs.cpSync(path.join(project,'drizzle'),migrations,{recursive:true});
+  // D1 maintenance executors may separate statements at line boundaries.
+  // Keep source migrations immutable; emit complete trigger bodies on one line.
+  for(const filename of fs.readdirSync(migrations).filter(f=>f.endsWith('.sql'))){
+   const file=path.join(migrations,filename),original=fs.readFileSync(file,'utf8');
+   if(filename!=='0001_stock_guards.sql')continue;
+   const sql=original.split('--> statement-breakpoint').map(block=>{
+    const cleaned=block.replace(/^\s*--[^\r\n]*(?:\r?\n|$)/gm,'').trim();
+    // The initial trigger migration failed before this Site was ever live.
+    // Its stock behavior is now enforced by the atomic append in lib/stock.mjs.
+    // Keep the historical source unchanged, and retain only the bounded indexes
+    // in this pending deployment migration. The next migration defines balances.
+    if(/^CREATE TRIGGER\b/i.test(cleaned))return null;
+    if(/^CREATE INDEX\b/i.test(cleaned))return cleaned.replace(/^CREATE INDEX\s+/i,'CREATE INDEX IF NOT EXISTS ');
+    return block;
+   }).filter(block=>block!=null&&block.trim()).join('\n--> statement-breakpoint\n');
+   fs.writeFileSync(file,sql+'\n');
+  }
+  execFileSync(process.execPath,[path.join(project,'scripts','check-stock.mjs'),migrations]);
+ }
  fs.mkdirSync(path.dirname(archive),{recursive:true});
  const tar=process.platform==='win32'?path.join(process.env.SystemRoot||'C:/Windows','System32','tar.exe'):'tar';
  execFileSync(tar,['-C',stage,'-czf',archive,'dist']);
