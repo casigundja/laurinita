@@ -117,14 +117,14 @@ interface OrderRecord {
   notes?: string;
 }
 
-export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 'admin' } = {}) {
+export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 'admin' | 'login' } = {}) {
   // Navigation & view states
-  const [view, setView] = useState<'shop' | 'admin'>(initialView);
+  const [view, setView] = useState<'shop' | 'admin' | 'login'>(initialView);
 
-  const navigateTo = (newView: 'shop' | 'admin') => {
+  const navigateTo = (newView: 'shop' | 'admin' | 'login') => {
     setView(newView);
     if (typeof window !== 'undefined') {
-      const targetPath = newView === 'admin' ? '/dashboard' : '/';
+      const targetPath = newView === 'admin' ? '/dashboard' : (newView === 'login' ? '/login' : '/');
       if (window.location.pathname !== targetPath) {
         window.history.pushState({ view: newView }, '', targetPath);
       }
@@ -133,12 +133,19 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const isLogin = window.location.pathname.startsWith('/login');
       const isDash = window.location.pathname.startsWith('/dashboard') || window.location.pathname.startsWith('/admin');
-      if (isDash && view !== 'admin') {
+      if (isLogin && view !== 'login') {
+        setView('login');
+      } else if (isDash && view !== 'admin') {
         setView('admin');
-      } else if (!isDash && initialView === 'admin' && view === 'admin') {
+      } else if (!isDash && !isLogin && (view === 'admin' || view === 'login')) {
         if (window.location.pathname === '/') {
-          window.history.replaceState({ view: 'admin' }, '', '/dashboard');
+          if (initialView === 'admin') {
+            window.history.replaceState({ view: 'admin' }, '', '/dashboard');
+          } else if (initialView === 'login') {
+            window.history.replaceState({ view: 'login' }, '', '/login');
+          }
         }
       }
     }
@@ -147,8 +154,9 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   useEffect(() => {
     const handlePopState = () => {
       if (typeof window !== 'undefined') {
+        const isLogin = window.location.pathname.startsWith('/login');
         const isDash = window.location.pathname.startsWith('/dashboard') || window.location.pathname.startsWith('/admin');
-        setView(isDash ? 'admin' : 'shop');
+        setView(isLogin ? 'login' : (isDash ? 'admin' : 'shop'));
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -171,6 +179,12 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  useEffect(() => {
+    if (view === 'login' && currentUser) {
+      navigateTo('admin');
+    }
+  }, [view, currentUser]);
 
   // Catalog state (backed by SQLite database and initial catalog)
   const [products, setProducts] = useState<CatalogProduct[]>(catalog);
@@ -745,6 +759,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       setShowLoginModal(false);
       setUserMenuOpen(false);
       setNotice(`Bem-vindo(a), ${session.name}! Sessão iniciada com sucesso.`);
+      navigateTo('admin');
       fetchDbData();
     } catch (err: any) {
       setLoginError(err.message || 'Erro ao realizar login.');
@@ -1302,7 +1317,13 @@ Aguardo confirmação e dados para pagamento / fatura!`;
               <button
                 type="button"
                 className="store-user-btn"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                onClick={() => {
+                  if (!currentUser) {
+                    navigateTo('login');
+                  } else {
+                    setUserMenuOpen(!userMenuOpen);
+                  }
+                }}
               >
                 <div className="user-avatar-circle">
                   {currentUser ? currentUser.name.slice(0, 2).toUpperCase() : 'U'}
@@ -1378,10 +1399,10 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                         <button
                           type="button"
                           className="btn-comprar"
-                          onClick={() => { setShowLoginModal(true); setUserMenuOpen(false); }}
+                          onClick={() => { navigateTo('login'); setUserMenuOpen(false); }}
                         >
                           <LogIn size={15} />
-                          <span>Acessar Minha Conta</span>
+                          <span>Entrar no Sistema</span>
                         </button>
                       </div>
                     )}
@@ -1848,12 +1869,12 @@ Aguardo confirmação e dados para pagamento / fatura!`;
             <div className="admin-access-guard-screen">
               <div className="access-guard-card">
                 <div className="guard-shield-header">
-                  <div className="guard-shield-icon-wrap">
+                  <div className="guard-shield-icon-wrap" style={{ backgroundColor: isDarkMode ? '#1e293b' : '#fef3c7', color: '#d97706' }}>
                     <Lock size={36} />
                   </div>
-                  <h2>Acesso Restrito ao Painel</h2>
+                  <h2>Entrar no Sistema</h2>
                   <p>
-                    Esta área é exclusiva para a equipa da Laurinita Distribuidora Ltda. Selecione uma conta de demonstração para testar as permissões:
+                    Acesso exclusivo ao Painel de Gestão da Laurinita Distribuidora Ltda. Selecione uma conta para autenticação ou insira as suas credenciais:
                   </p>
                 </div>
 
@@ -1906,7 +1927,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                   <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                     <button type="submit" className="btn-comprar" style={{ flex: 1 }} disabled={loginLoading}>
                       <Key size={16} />
-                      <span>{loginLoading ? 'A validar...' : 'Entrar no Dashboard'}</span>
+                      <span>{loginLoading ? 'A autenticar...' : 'Entrar no Sistema'}</span>
                     </button>
                     <button
                       type="button"
