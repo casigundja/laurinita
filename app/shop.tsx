@@ -1,44 +1,3397 @@
 'use client';
-import {useEffect,useState} from 'react';
-import {Search,ShoppingBag,ArrowUpRight,ArrowRight,Heart,ShieldCheck,Truck,Headphones,Plus,Minus,X,LayoutDashboard,Package,Activity,Users,ClipboardList,Download,Menu,Check,Stethoscope,Accessibility,Box,SlidersHorizontal,ChevronRight,Leaf,LogOut} from 'lucide-react';
-import {catalog} from '../lib/catalog';
-type Product=typeof catalog[number]&{active?:number};
-const money=(n:number)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n/100);
-const categories=['Todos','Mobilidade','Diagnóstico','Descartáveis','Cuidados'];
-function Art({kind,hero=false}:{kind:string,hero?:boolean}){return <svg className={hero?'product-art hero-art':'product-art'} viewBox="0 0 360 300" aria-label="Ilustração do equipamento" role="img"><defs><linearGradient id={'metal-'+kind} x2="1" y2="1"><stop stopColor="#e5ebec"/><stop offset=".5" stopColor="#8a9b9c"/><stop offset="1" stopColor="#edf2f1"/></linearGradient><filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter></defs><ellipse cx="180" cy="265" rx="105" ry="12" fill="#173f32" opacity=".09" filter="url(#shadow)"/>{kind==='wheelchair'?<g strokeLinecap="round" strokeLinejoin="round"><circle cx="132" cy="199" r="62" fill="#e4eae7" stroke="#283a36" strokeWidth="10"/><circle cx="132" cy="199" r="48" fill="#f7f8f4" stroke="#9aaba8" strokeWidth="3"/>{Array.from({length:12},(_,i)=><path key={i} d="M132 199 L132 150" stroke="#aab7b1" strokeWidth="1.5" transform={'rotate('+i*30+' 132 199)'}/>)}<circle cx="132" cy="199" r="9" fill="#5a7268"/><path d="M142 68L174 173L238 187L264 240M165 151L241 151M132 199L176 171" fill="none" stroke={'url(#metal-'+kind+')'} strokeWidth="10"/><path d="M140 65L214 54L230 136L161 146Z" fill="#204c3d"/><path d="M161 146L231 136L248 157L177 172Z" fill="#31614c"/><path d="M133 61L122 37L105 40M214 52L207 26L192 29M172 112L235 103M238 180L252 168" fill="none" stroke="#364c44" strokeWidth="8"/><circle cx="261" cy="241" r="17" fill="#304a40"/><circle cx="261" cy="241" r="8" fill="#bcc6bc"/><path d="M244 211L277 215L279 224L250 222Z" fill="#264c3b"/></g>:kind==='stethoscope'?<g fill="none" strokeLinecap="round"><path d="M113 58L112 110Q120 178 180 164Q222 156 223 111L222 58" stroke="#9aa9a8" strokeWidth="10"/><path d="M112 115Q122 183 180 165Q222 155 223 115M166 173Q133 266 221 252Q273 240 244 186" stroke="#244f3e" strokeWidth="12"/><path d="M112 57L128 36M222 57L207 35" stroke="#43584e" strokeWidth="11"/><circle cx="243" cy="178" r="28" fill="#b7c6c0" stroke="#708780" strokeWidth="5"/><circle cx="243" cy="178" r="18" fill="#edf1ed"/></g>:kind==='monitor'?<g transform="rotate(-8 180 150)"><rect x="73" y="87" width="198" height="147" rx="26" fill="#e5eae7" stroke="#c4cec9" strokeWidth="3"/><rect x="99" y="105" width="126" height="79" rx="8" fill="#b7ccc0"/><text x="121" y="145" fontSize="33" fill="#284a3a" fontFamily="monospace">120</text><text x="146" y="171" fontSize="23" fill="#284a3a" fontFamily="monospace">80</text><circle cx="169" cy="207" r="13" fill="#285840"/><path d="M270 160Q326 142 304 95L277 45" fill="none" stroke="#80938b" strokeWidth="8"/><rect x="214" y="26" width="70" height="62" rx="14" fill="#354f46"/></g>:kind==='walker'?<g fill="none" strokeLinecap="round"><path d="M98 248L116 78Q181 35 251 79L266 248M117 123L252 126M133 72L153 241M234 70L209 240M152 160L210 159" stroke="#aabbb1" strokeWidth="12"/><path d="M110 81L147 68M219 67L254 84" stroke="#305944" strokeWidth="16"/><path d="M98 242L96 255M153 238L152 251M209 238L207 252M266 242L268 255" stroke="#385546" strokeWidth="13"/></g>:kind==='gloves'?<g><rect x="66" y="133" width="223" height="105" rx="9" fill="#b3ced3"/><path d="M66 133L108 103L284 104L289 133" fill="#d3e3e2"/><ellipse cx="177" cy="124" rx="58" ry="13" fill="#789c9d"/><path d="M144 126L127 81Q124 63 137 69L152 92L148 40Q151 26 160 40L170 84L174 29Q181 16 187 33L187 84L196 34Q207 25 209 43L204 94L218 57Q230 50 229 68L222 120Q179 162 144 126" fill="#cee2ed" stroke="#9fbbc4" strokeWidth="2"/><text x="103" y="181" fontSize="18" fill="#355d5c">LUVAS</text><text x="103" y="207" fontSize="12" fill="#355d5c">100 UNIDADES</text></g>:kind==='mask'?<g><path d="M96 121Q20 118 57 208Q83 228 105 201M265 121Q339 118 305 208Q280 228 260 201" fill="none" stroke="#c1d5d3" strokeWidth="7"/><path d="M95 112Q179 82 266 112L259 210Q179 242 102 211Z" fill="#bbd9dd" stroke="#96bdc1" strokeWidth="3"/><path d="M102 142Q180 126 260 142M104 168Q180 151 258 168M105 193Q180 177 257 193" fill="none" stroke="#8fb9be" strokeWidth="3"/></g>:kind==='oximeter'?<g transform="rotate(-17 180 155)"><rect x="119" y="80" width="120" height="159" rx="40" fill="#dce6e3" stroke="#adbfbb" strokeWidth="3"/><rect x="132" y="101" width="94" height="83" rx="14" fill="#214638"/><text x="144" y="139" fontSize="27" fill="#d3f3d6" fontFamily="monospace">98</text><text x="176" y="166" fontSize="20" fill="#b9e9c9">72</text><circle cx="179" cy="205" r="10" fill="#7eaea0"/></g>:<g><rect x="76" y="94" width="214" height="147" rx="26" fill="#426d56"/><path d="M141 95V71Q180 45 222 72V95" fill="none" stroke="#264b3a" strokeWidth="12"/><rect x="159" y="133" width="45" height="72" rx="4" fill="#e7efe3"/><rect x="145" y="147" width="73" height="44" rx="4" fill="#e7efe3"/></g>}</svg>}
-export default function Shop(){
- const [data,setData]=useState<any>({products:[],orders:[],movements:[],users:[],user:null}),[ready,setReady]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[view,setView]=useState('shop'),[tab,setTab]=useState('Visão geral'),[category,setCategory]=useState('Todos'),[query,setQuery]=useState(''),[sort,setSort]=useState('featured'),[cart,setCart]=useState<Record<string,number>>({}),[drawer,setDrawer]=useState(false),[detail,setDetail]=useState<Product|null>(null),[editing,setEditing]=useState<any>(null),[stockEdit,setStockEdit]=useState<any>(null),[busy,setBusy]=useState(false),[customer,setCustomer]=useState(''),[address,setAddress]=useState(''),[checkoutKey,setCheckoutKey]=useState(''),[mobile,setMobile]=useState(false);
- async function load(){try{const r=await fetch('/api/store');const d:any=await r.json();if(!r.ok)throw Error(d.error);setData(d);setError('');}catch(e){setError(String(e).replace('Error: ',''))}finally{setReady(true)}}
- useEffect(()=>{load();try{setCart(JSON.parse(localStorage.getItem('laurinita-cart')||'{}'))}catch{}setCheckoutKey(crypto.randomUUID())},[]);
- useEffect(()=>{if(ready)localStorage.setItem('laurinita-cart',JSON.stringify(cart))},[cart,ready]);
- async function act(payload:any){setBusy(true);setError('');try{const r=await fetch('/api/store',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d:any=await r.json();if(!r.ok)throw Error(d.error);await load();return d;}catch(e){setError(String(e).replace('Error: ',''));return null}finally{setBusy(false)}}
- const demo=ready&&!data.products.length;const products:Product[]=data.products.length?data.products:catalog;const admin=data.user?.role==='admin';
- const shown=products.filter(p=>p.active!==0&&(category==='Todos'||p.category===category)&&p.name.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>sort==='low'?a.price-b.price:sort==='high'?b.price-a.price:0);
- const cartLines=Object.entries(cart).map(([id,q])=>({p:products.find(p=>p.id===id),q})).filter(x=>x.p) as {p:Product,q:number}[];const total=cartLines.reduce((s,l)=>s+l.p.price*l.q,0),count=Object.values(cart).reduce((a,b)=>a+b,0);
- function add(p:Product){if((cart[p.id]||0)>=p.stock){setNotice('Quantidade máxima disponível atingida.');return}setCart({...cart,[p.id]:(cart[p.id]||0)+1});setNotice(p.name+' adicionado ao carrinho.');}
- function quantity(id:string,n:number){const next={...cart};if(n<1)delete next[id];else next[id]=n;setCart(next);setCheckoutKey(crypto.randomUUID())}
- function exportCsv(kind:string){const rows=kind==='Estoque'?products.map(p=>({produto:p.name,categoria:p.category,estoque:p.stock,minimo:p.minimum,preco:money(p.price)})):kind==='Movimentos'?data.movements:data.orders;const keys=Object.keys(rows[0]||{});if(!keys.length){setNotice('Ainda não existem dados para exportar.');return}const esc=(v:any)=>'"'+String(v??'').replace(/"/g,'""')+'"';const text='\uFEFF'+[keys.map(esc).join(';'),...rows.map((r:any)=>keys.map(k=>esc(r[k])).join(';'))].join('\r\n');const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='laurinita-'+kind.toLowerCase()+'.csv';a.click();URL.revokeObjectURL(url);}
- const navAdmin=['Visão geral','Produtos','Estoque','Encomendas','Clientes','Utilizadores','Relatórios'];const monthOrders=data.orders.filter((o:any)=>o.created.startsWith(new Date().toISOString().slice(0,7))&&['Confirmado','Enviado','Concluído'].includes(o.status));
- return <><div className="announcement"><span>Equipamentos e cuidados para uma vida melhor.</span><span>Qualidade em cada detalhe <ShieldCheck size={13}/></span></div><header><a href="#" className="brand" onClick={e=>{e.preventDefault();setView('shop')}}><span className="brandmark"><Leaf size={24}/></span>laurinita<span className="brand-dot">.</span></a><nav className={mobile?'open':''}><button className={view==='shop'?'selected':''} onClick={()=>{setView('shop');setMobile(false)}}>Loja</button><button onClick={()=>{setView('shop');setCategory('Todos');document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'})}}>Produtos</button><button onClick={()=>{setView('shop');setCategory('Mobilidade')}}>Mobilidade</button><button onClick={()=>{setView('shop');setCategory('Cuidados')}}>Cuidados</button></nav><div className="header-actions">{admin&&<button className="admin-link" onClick={()=>setView('admin')}><LayoutDashboard size={16}/><span>Administração</span></button>}<button className="account" onClick={()=>setView('account')}><Users size={20}/><span>Minha conta</span></button><button className="cart-button" onClick={()=>setDrawer(true)} aria-label={'Carrinho com '+count+' produtos'}><ShoppingBag size={21}/><b>{count}</b></button><button className="mobile-menu" aria-label="Menu" onClick={()=>setMobile(!mobile)}><Menu/></button></div></header>
- {error&&<div className="error" role="alert">{error}<button onClick={()=>setError('')} aria-label="Fechar"><X size={16}/></button></div>}{notice&&<div className="toast" role="status"><Check size={18}/>{notice}<button onClick={()=>setNotice('')} aria-label="Fechar"><X size={16}/></button></div>}
- {view==='shop'?<><main><section className="hero"><div className="hero-copy"><div className="eyebrow"><span/> CUIDADO QUE FAZ A DIFERENÇA</div><h1>Mais conforto.<br/>Mais autonomia.<br/><em>Mais vida.</em></h1><p>Equipamentos hospitalares e soluções de cuidado<br className="desktop"/> para estar ao seu lado, em cada momento.</p><button className="primary" onClick={()=>document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'})}>Explorar produtos <ArrowUpRight size={20}/></button><div className="hero-proof"><div className="proof-icon"><Heart size={19}/></div><span>Escolhas feitas com cuidado.<br/><b>Para quem cuida e para quem precisa.</b></span></div></div><div className="hero-visual"><div className="hero-ring"/><div className="hero-pill"><span/> MOBILIDADE & BEM-ESTAR</div><Art kind="wheelchair" hero/><div className="floating-label"><span className="little-star">✦</span><div>Liberdade para ir além.<small>Conforto em cada movimento</small></div></div><span className="hero-counter">01 <span>/ 03</span></span></div></section><div className="benefits"><div><ShieldCheck/><span><b>Qualidade e confiança</b><small>Produtos escolhidos com cuidado</small></span></div><div><Truck/><span><b>Entrega a combinar</b><small>Condições confirmadas no pedido</small></span></div><div><Headphones/><span><b>Atendimento próximo</b><small>Apoio em cada etapa da compra</small></span></div><div><Heart/><span><b>Cuidado em primeiro lugar</b><small>Soluções para o seu dia a dia</small></span></div></div>
- <section className="category-section"><div className="section-heading"><div><div className="eyebrow">ENCONTRE O QUE PRECISA</div><h2>Um cuidado para cada necessidade.</h2></div><a href="#catalogo">Ver todos os produtos <ArrowRight size={17}/></a></div><div className="category-grid">{categories.slice(1).map((c,i)=>{const Icon=[Accessibility,Stethoscope,Box,Heart][i];return <button key={c} onClick={()=>{setCategory(c);document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'})}}><span className={'category-icon c'+i}><Icon size={30}/></span><span><b>{c}</b><small>{['Liberdade para se movimentar','Precisão para cuidar melhor','Proteção na rotina','Bem-estar em cada detalhe'][i]}</small></span><ArrowUpRight size={19}/></button>})}</div></section>
- <section id="catalogo" className="catalog"><div className="section-heading"><div><div className="eyebrow">NOSSA SELEÇÃO</div><h2>Essenciais para cuidar bem<span>.</span></h2></div><span className="catalog-count">{shown.length} produtos</span></div><div className="catalog-toolbar"><div className="tabs">{categories.map(c=><button key={c} className={category===c?'active':''} onClick={()=>setCategory(c)}>{c}</button>)}</div><div className="filter-controls"><label className="search"><Search size={17}/><input placeholder="Pesquisar produtos" aria-label="Pesquisar produtos" value={query} onChange={e=>setQuery(e.target.value)}/></label><label className="sort"><SlidersHorizontal size={16}/><select value={sort} aria-label="Ordenar produtos" onChange={e=>setSort(e.target.value)}><option value="featured">Destaques</option><option value="low">Menor preço</option><option value="high">Maior preço</option></select></label></div></div>{demo&&<div className="demo-note">Catálogo ilustrativo · Produtos e preços de demonstração.{admin&&<button disabled={busy} onClick={()=>act({action:'seed'})}>Ativar catálogo de demonstração <ArrowRight size={14}/></button>}</div>}
- <div className="product-grid">{shown.map((p,i)=><article className="product-card" key={p.id}><button className="product-image" onClick={()=>setDetail(p)} aria-label={'Ver '+p.name}>{i===0&&<span className="badge">DESTAQUE</span>}{p.stock===0&&<span className="badge">INDISPONÍVEL</span>}<Art kind={p.image}/><span className="image-arrow"><ArrowUpRight size={18}/></span></button><div className="product-info"><small>{p.category}</small><button className="product-name" onClick={()=>setDetail(p)}>{p.name}</button><span className="stock-label"><span className={p.stock>0?'dot':'dot out'}/>{p.stock>0?'Disponível em estoque':'Sem estoque'}</span><div className="product-bottom"><div><b>{money(p.price)}</b><small>Preço por unidade</small></div><button className="add" onClick={()=>add(p)} disabled={!p.stock} aria-label={'Adicionar '+p.name}><Plus size={21}/></button></div></div></article>)}</div>{!shown.length&&<div className="empty">Nenhum produto encontrado.<button onClick={()=>{setQuery('');setCategory('Todos')}}>Limpar filtros</button></div>}</section>
- <section className="care-banner"><div className="care-art"><Heart size={78} strokeWidth={1}/><span>✦</span></div><div><div className="eyebrow">A NOSSA ESSÊNCIA</div><h2>Cuidar vai além de um produto.</h2><p>Acreditamos que conforto, autonomia e atenção fazem parte de uma vida melhor.<br/>É por isso que cada escolha na Laurinita começa com você.</p></div><button onClick={()=>{setCategory('Cuidados');document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'})}}>Conheça os cuidados <ArrowUpRight size={18}/></button></section></main><footer><div><a className="brand" href="#">laurinita<span className="brand-dot">.</span></a><p>Mais perto de você.<br/>Mais cuidado em cada escolha.</p></div><div><b>Explore</b>{categories.slice(1).map(c=><button key={c} onClick={()=>{setCategory(c);document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'})}}>{c}</button>)}</div><div><b>Sua compra</b><button onClick={()=>setDrawer(true)}>Carrinho</button><button onClick={()=>setView('account')}>Minhas encomendas</button><span>Entrega e pagamento a combinar</span></div><div className="footer-sign"><Leaf size={29}/><b>Cuidado que acompanha.</b><p>Equipamentos hospitalares<br/>e soluções para o bem-estar.</p></div><div className="footer-bottom">© {new Date().getFullYear()} Laurinita. Todos os direitos reservados.<span>Uma loja feita para cuidar.</span></div></footer></>:
- view==='account'?<main className="account-page"><div className="eyebrow">ÁREA DO CLIENTE</div><h1>Minha conta<span>.</span></h1>{!data.user?<div className="panel"><h2>Seu cuidado começa aqui.</h2><p>Entre com sua conta ChatGPT para guardar as suas encomendas.</p><a className="primary" href="/signin-with-chatgpt?return_to=/" target="_top">Entrar ou criar conta <ArrowRight size={18}/></a></div>:<><div className="panel account-summary"><div><h2>{data.user.name}</h2><p>{data.user.email}</p></div><a href="/signout-with-chatgpt?return_to=/" target="_top"><LogOut size={16}/> Sair</a></div><h2>Histórico de encomendas</h2><OrderTable orders={data.orders.filter((o:any)=>o.user_id===data.user.id)}/></>}</main>:
- <div className="admin-shell"><aside><div className="eyebrow">PAINEL ADMINISTRATIVO</div>{navAdmin.map((n,i)=>{const Icon=[LayoutDashboard,Package,Activity,ClipboardList,Users,ShieldCheck,Download][i];return <button key={n} className={tab===n?'active':''} onClick={()=>setTab(n)}><Icon size={18}/>{n}</button>})}<div className="aside-bottom"><span className="dot"/> Estoque sincronizado<small>{data.user?.email}</small></div></aside><div className="admin-main"><div className="admin-heading"><div><div className="eyebrow">LAURINITA / ADMINISTRAÇÃO</div><h1>{tab}<span>.</span></h1><p>Cuide do negócio. Nós ajudamos a organizar.</p></div><button className="outline" onClick={()=>setView('shop')}>Ver loja <ArrowUpRight size={17}/></button></div>{demo&&<div className="demo-note">Comece com produtos ilustrativos ou cadastre o seu catálogo.<button disabled={busy} onClick={()=>act({action:'seed'})}>Carregar demonstração</button></div>}
- {tab==='Visão geral'?<><div className="metrics">{[['Produtos ativos',products.filter(p=>p.active!==0).length,Package],['Estoque baixo',products.filter(p=>p.stock<=p.minimum).length,Activity],['Pedidos pendentes',data.orders.filter((o:any)=>o.status==='Pendente').length,ClipboardList],['Vendas do mês',money(monthOrders.reduce((s:number,o:any)=>s+o.total,0)),ShoppingBag]].map(([label,value,Icon]:any)=><div className="metric" key={label}><div>{label}<Icon size={19}/></div><b>{value}</b><small>{demo?'Dados ilustrativos':'Dados atuais do sistema'}</small></div>)}</div><div className="overview-grid"><section className="panel"><div className="panel-title"><h2>Encomendas recentes</h2><button onClick={()=>setTab('Encomendas')}>Ver todas <ArrowRight size={15}/></button></div><OrderTable orders={data.orders.slice(0,5)}/></section><section className="panel"><div className="panel-title"><h2>Atenção ao estoque</h2><Activity size={18}/></div>{products.filter(p=>p.stock<=p.minimum).map(p=><div className="low-row" key={p.id}><div><b>{p.name}</b><small>Mínimo: {p.minimum} unidades</small></div><span>{p.stock} un.</span></div>)}<button className="outline" onClick={()=>setTab('Estoque')}>Gerir estoque <ArrowRight size={16}/></button></section></div><section className="panel"><div className="panel-title"><h2>Últimas movimentações</h2><button onClick={()=>setTab('Estoque')}>Ver histórico</button></div><MovementTable rows={data.movements.slice(0,5)}/></section></>:
- tab==='Produtos'?<section className="panel"><div className="panel-title"><h2>Catálogo de produtos</h2><button className="primary" onClick={()=>setEditing({name:'',category:'Cuidados',description:'',price:0,minimum:5,image:'kit',active:1})}><Plus size={17}/> Novo produto</button></div><div className="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estado</th><th/></tr></thead><tbody>{products.map(p=><tr key={p.id}><td><b>{p.name}</b><small>{p.id}</small></td><td>{p.category}</td><td>{money(p.price)}</td><td><span className="status">{p.active!==0?'Ativo':'Inativo'}</span></td><td><button disabled={demo} className="outline" onClick={()=>setEditing({...p})}>Editar</button></td></tr>)}</tbody></table></div></section>:
- tab==='Estoque'?<><section className="panel"><div className="panel-title"><h2>Saldo de mercadorias</h2><button className="outline" onClick={()=>exportCsv('Estoque')}><Download size={16}/> Exportar</button></div><div className="table-wrap"><table><thead><tr><th>Produto</th><th>Saldo</th><th>Mínimo</th><th>Situação</th><th/></tr></thead><tbody>{products.map(p=><tr key={p.id}><td><b>{p.name}</b></td><td>{p.stock} un.</td><td>{p.minimum} un.</td><td><span className={'status '+(p.stock<=p.minimum?'warning':'')}>{p.stock<=p.minimum?'Estoque baixo':'Regular'}</span></td><td><button disabled={demo} className="outline" onClick={()=>setStockEdit({productId:p.id,name:p.name,delta:1,reason:'',type:'Entrada',key:crypto.randomUUID()})}>Movimentar</button></td></tr>)}</tbody></table></div></section><section className="panel"><div className="panel-title"><h2>Histórico auditável</h2><button onClick={()=>exportCsv('Movimentos')}><Download size={16}/> Exportar</button></div><MovementTable rows={data.movements}/></section></>:
- tab==='Encomendas'?<section className="panel"><div className="panel-title"><h2>Todas as encomendas</h2><button onClick={()=>exportCsv('Encomendas')}><Download size={16}/> Exportar</button></div><OrderTable orders={data.orders} admin busy={busy} update={(id,status)=>act({action:'status',id,status})}/></section>:
- ['Clientes','Utilizadores'].includes(tab)?<section className="panel"><h2>{tab==='Clientes'?'Clientes cadastrados':'Acessos ao sistema'}</h2><div className="table-wrap"><table><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Desde</th></tr></thead><tbody>{data.users.map((u:any)=><tr key={u.id}><td>{u.name}</td><td>{u.email}</td><td>{tab==='Utilizadores'?<select disabled={busy||u.id===data.user.id} value={u.role} onChange={e=>act({action:'role',id:u.id,role:e.target.value})}><option value="customer">Cliente</option><option value="admin">Administrador</option></select>:u.role==='admin'?'Administrador':'Cliente'}</td><td>{new Date(u.created).toLocaleDateString('pt-BR')}</td></tr>)}</tbody></table></div></section>:
- <section className="panel"><h2>Relatórios do negócio</h2><p>Exporte os dados atuais para analisar na sua folha de cálculo.</p><div className="report-grid">{['Estoque','Encomendas','Movimentos'].map(n=><button key={n} onClick={()=>exportCsv(n)}><Download/><b>{n}</b><small>Descarregar CSV <ArrowRight size={14}/></small></button>)}</div><p>Vendas do mês incluem pedidos confirmados, enviados e concluídos. Pedidos pendentes, cancelados e devolvidos não entram no total.</p></section>}</div></div>}
- {drawer&&<div className="overlay" onClick={()=>setDrawer(false)}><section className="drawer" onClick={e=>e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Carrinho"><div className="modal-heading"><h2>Seu carrinho <span>({count})</span></h2><button onClick={()=>setDrawer(false)} aria-label="Fechar"><X/></button></div>{!cartLines.length?<div className="empty"><ShoppingBag size={40}/><h3>Seu próximo cuidado começa aqui.</h3><p>Adicione produtos ao carrinho.</p><button className="primary" onClick={()=>{setDrawer(false);setView('shop')}}>Explorar produtos</button></div>:<><div className="cart-items">{cartLines.map(({p,q})=><div className="cart-line" key={p.id}><Art kind={p.image}/><div><b>{p.name}</b><span>{money(p.price)}</span><div className="quantity"><button aria-label="Diminuir" onClick={()=>quantity(p.id,q-1)}><Minus size={13}/></button>{q}<button aria-label="Aumentar" disabled={q>=p.stock} onClick={()=>quantity(p.id,q+1)}><Plus size={13}/></button></div></div><button aria-label="Remover produto" onClick={()=>quantity(p.id,0)}><X size={16}/></button></div>)}</div><div className="checkout"><div className="total"><span>Subtotal</span><b>{money(total)}</b></div><p>Entrega e pagamento a combinar após confirmação. Nenhum pagamento é cobrado aqui.</p>{!data.user?<a className="primary" href="/signin-with-chatgpt?return_to=/" target="_top">Entrar para finalizar</a>:<form onSubmit={async e=>{e.preventDefault();const r=await act({action:'checkout',key:checkoutKey,customer,address,items:cartLines.map(l=>({id:l.p.id,quantity:l.q}))});if(r){setCart({});setDrawer(false);setView('account');setCheckoutKey(crypto.randomUUID());setNotice('Encomenda registada! Aguarde a confirmação da equipa.')}}}><label>Nome completo<input required maxLength={160} value={customer} onChange={e=>setCustomer(e.target.value)}/></label><label>Endereço e contacto para entrega<textarea required maxLength={600} value={address} onChange={e=>setAddress(e.target.value)} placeholder="Rua, número, cidade, código postal e telefone"/></label><button className="primary full" disabled={busy||demo}>{busy?'A registar…':'Finalizar encomenda'}<ArrowRight size={17}/></button>{demo&&<small>Ative o catálogo de demonstração no painel para testar encomendas.</small>}</form>}</div></>}</section></div>}
- {detail&&<div className="overlay centered" onClick={()=>setDetail(null)}><section className="detail modal" role="dialog" aria-modal="true" aria-label={detail.name} onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setDetail(null)} aria-label="Fechar"><X/></button><div className="detail-image"><Art kind={detail.image}/></div><div className="detail-copy"><div className="eyebrow">{detail.category}</div><h2>{detail.name}</h2><p>{detail.description}</p><b className="detail-price">{money(detail.price)}</b><span className="stock-label">{detail.stock} unidades disponíveis</span><button className="primary" disabled={!detail.stock} onClick={()=>add(detail)}>Adicionar ao carrinho <ShoppingBag size={18}/></button><small>Ilustração do produto. Entrega e pagamento a combinar.</small></div></section></div>}
- {editing&&<div className="overlay centered"><form className="modal form-modal" role="dialog" aria-modal="true" aria-label="Editar produto" onSubmit={async e=>{e.preventDefault();if(await act({action:'product',product:editing}))setEditing(null)}}><div className="modal-heading"><h2>{editing.id?'Editar produto':'Novo produto'}</h2><button type="button" onClick={()=>setEditing(null)} aria-label="Fechar"><X/></button></div><label>Nome<input required value={editing.name} onChange={e=>setEditing({...editing,name:e.target.value})}/></label><label>Categoria<select value={editing.category} onChange={e=>setEditing({...editing,category:e.target.value})}>{categories.slice(1).map(c=><option key={c}>{c}</option>)}</select></label><label>Descrição<textarea value={editing.description} onChange={e=>setEditing({...editing,description:e.target.value})}/></label><div className="form-row"><label>Preço (R$)<input required type="number" min="0.01" step="0.01" value={editing.price/100||''} onChange={e=>setEditing({...editing,price:Math.round(Number(e.target.value)*100)})}/></label><label>Estoque mínimo<input type="number" min="0" required value={editing.minimum} onChange={e=>setEditing({...editing,minimum:Number(e.target.value)})}/></label></div><label>Ilustração<select value={editing.image} onChange={e=>setEditing({...editing,image:e.target.value})}>{catalog.map(p=><option key={p.id} value={p.image}>{p.name}</option>)}</select></label><label className="check-label"><input type="checkbox" checked={!!editing.active} onChange={e=>setEditing({...editing,active:e.target.checked?1:0})}/> Produto ativo</label><p>O saldo é alterado em Estoque, com registo de motivo e responsável.</p><button className="primary full" disabled={busy}>Guardar produto <Check size={17}/></button></form></div>}
- {stockEdit&&<div className="overlay centered"><form className="modal form-modal" role="dialog" aria-modal="true" aria-label="Movimentar estoque" onSubmit={async e=>{e.preventDefault();if(await act({action:'movement',...stockEdit,delta:stockEdit.type==='Saída'?-Math.abs(stockEdit.delta):Math.abs(stockEdit.delta),reason:stockEdit.type+': '+stockEdit.reason}))setStockEdit(null)}}><div className="modal-heading"><h2>Movimentar estoque</h2><button type="button" onClick={()=>setStockEdit(null)} aria-label="Fechar"><X/></button></div><p>{stockEdit.name}</p><label>Tipo<select value={stockEdit.type} onChange={e=>setStockEdit({...stockEdit,type:e.target.value})}>{['Entrada','Saída','Devolução'].map(t=><option key={t}>{t}</option>)}</select></label><label>Quantidade<input type="number" min="1" step="1" required value={stockEdit.delta} onChange={e=>setStockEdit({...stockEdit,delta:Number(e.target.value)})}/></label><label>Motivo<textarea required value={stockEdit.reason} onChange={e=>setStockEdit({...stockEdit,reason:e.target.value})}/></label><p>Responsável: {data.user?.email}. O movimento ficará no histórico.</p><button className="primary full" disabled={busy}>Confirmar movimento <Check size={17}/></button></form></div>}
- </>;
+
+import { useEffect, useState, useMemo, useRef } from 'react';
+import {
+  Search,
+  ShoppingBag,
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  Headphones,
+  Plus,
+  Minus,
+  X,
+  LayoutDashboard,
+  Package,
+  Activity,
+  Users,
+  ClipboardList,
+  Download,
+  Check,
+  SlidersHorizontal,
+  MapPin,
+  Clock,
+  Phone,
+  MessageCircle,
+  Grid3X3,
+  List as ListIcon,
+  Trash2,
+  AlertCircle,
+  CreditCard,
+  Building2,
+  Smartphone,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
+  Edit,
+  Eye,
+  Settings,
+  HelpCircle,
+  CheckCircle2,
+  AlertTriangle,
+  FileText,
+  Lock,
+  Unlock,
+  UserCheck,
+  ShieldAlert,
+  LogIn,
+  LogOut,
+  Key,
+  Database,
+  Star,
+  Heart,
+  Moon,
+  Sun,
+  Layers,
+  Sparkles,
+  Stethoscope,
+  BadgePercent,
+  CheckCircle,
+  Send,
+  ArrowLeft,
+  ChevronFirst,
+  ChevronLast
+} from 'lucide-react';
+import QRCode from 'qrcode';
+import { catalog, CatalogProduct, STORE_INFO, formatKwanzas } from '../lib/catalog';
+import {
+  ANGOLA_PROVINCES,
+  PAYMENT_METHODS,
+  BANK_ACCOUNTS,
+  ORDER_STATUSES,
+  ProvinceDelivery,
+  PaymentMethodId,
+  OrderStatus,
+  StockMovement
+} from '../lib/angola-config';
+import {
+  UserSession,
+  UserRole,
+  ROLE_PERMISSIONS,
+  DEFAULT_ACCOUNTS,
+  hasPermission
+} from '../lib/auth';
+
+type ViewMode = 'grid' | 'list';
+export type SortOption = 'relevance' | 'price_asc' | 'price_desc' | 'name' | 'newest';
+
+interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
 }
-function OrderTable({orders,admin=false,update,busy=false}:{orders:any[],admin?:boolean,update?:(id:string,status:string)=>void,busy?:boolean}){const next:Record<string,string[]>={Pendente:['Confirmado','Cancelado'],Confirmado:['Enviado','Cancelado'],Enviado:['Concluído','Devolvido'],Concluído:['Devolvido']};return orders.length?<div className="table-wrap"><table><thead><tr><th>Encomenda</th><th>Cliente</th><th>Total</th><th>Estado</th>{admin&&<th>Próxima etapa</th>}</tr></thead><tbody>{orders.map(o=><tr key={o.id}><td><b>#{o.id.slice(0,8).toUpperCase()}</b><small>{new Date(o.created).toLocaleDateString('pt-BR')}</small></td><td>{o.customer}{admin&&<small>{o.address}</small>}</td><td>{money(o.total)}</td><td><span className={'status '+(['Cancelado','Devolvido'].includes(o.status)?'warning':'')}>{o.status}</span></td>{admin&&<td><select aria-label="Alterar estado" disabled={busy||!next[o.status]?.length} value="" onChange={e=>update?.(o.id,e.target.value)}><option value="">Selecionar</option>{(next[o.status]||[]).map(s=><option key={s}>{s}</option>)}</select></td>}</tr>)}</tbody></table></div>:<div className="empty small"><ClipboardList size={28}/><p>As encomendas aparecerão aqui.</p></div>}
-function MovementTable({rows}:{rows:any[]}){return rows.length?<div className="table-wrap"><table><thead><tr><th>Produto</th><th>Movimento</th><th>Motivo</th><th>Responsável</th><th>Data</th></tr></thead><tbody>{rows.map(m=><tr key={m.id}><td>{m.name}</td><td className={m.delta>0?'positive':'negative'}>{m.delta>0?'+':''}{m.delta} un.</td><td>{m.reason}</td><td>{m.actor}</td><td>{new Date(m.created).toLocaleString('pt-BR')}</td></tr>)}</tbody></table></div>:<div className="empty small"><Activity size={28}/><p>Nenhuma movimentação registada.</p></div>}
+
+interface OrderRecord {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  provinceId: string;
+  provinceName: string;
+  deliveryAddress: string;
+  paymentMethod: PaymentMethodId;
+  paymentPhone?: string;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  status: OrderStatus;
+  createdAt: string;
+  notes?: string;
+}
+
+export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 'admin' } = {}) {
+  // Navigation & view states
+  const [view, setView] = useState<'shop' | 'admin'>(initialView);
+
+  const navigateTo = (newView: 'shop' | 'admin') => {
+    setView(newView);
+    if (typeof window !== 'undefined') {
+      const targetPath = newView === 'admin' ? '/dashboard' : '/';
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view: newView }, '', targetPath);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isDash = window.location.pathname.startsWith('/dashboard') || window.location.pathname.startsWith('/admin');
+      if (isDash && view !== 'admin') {
+        setView('admin');
+      } else if (!isDash && initialView === 'admin' && view === 'admin') {
+        if (window.location.pathname === '/') {
+          window.history.replaceState({ view: 'admin' }, '', '/dashboard');
+        }
+      }
+    }
+  }, [initialView, view]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const isDash = window.location.pathname.startsWith('/dashboard') || window.location.pathname.startsWith('/admin');
+        setView(isDash ? 'admin' : 'shop');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+  const [adminTab, setAdminTab] = useState<'overview' | 'products' | 'stock' | 'orders' | 'customers' | 'reports' | 'users' | 'settings'>('overview');
+  const [ready, setReady] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  const [dbConnected, setDbConnected] = useState(false);
+
+  // Theme state (Dark / Light Mode)
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Authentication & Access Control (RBAC) state
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('admin@laurinita.ao');
+  const [loginPassword, setLoginPassword] = useState('Admin@2026!');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Catalog state (backed by SQLite database and initial catalog)
+  const [products, setProducts] = useState<CatalogProduct[]>(catalog);
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('relevance');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [onlyDiscount, setOnlyDiscount] = useState(false);
+
+  // Favorites state
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  // Hero carousel state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = 3;
+
+  // Header popovers
+  const [openAcess, setOpenAcess] = useState(false);
+  const [openGrupo, setOpenGrupo] = useState(false);
+
+  // Chat Support Modal
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{ sender: 'user' | 'agent'; text: string; time: string }>>([
+    {
+      sender: 'agent',
+      text: 'Olá! Bem-vindo à Laurinita Distribuidora Ltda. Como podemos apoiar a sua clínica ou hospital hoje com cotações e equipamentos?',
+      time: 'Agora'
+    }
+  ]);
+
+  // Modals & Drawers
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<CatalogProduct | null>(null);
+  const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
+  const [stockModalProduct, setStockModalProduct] = useState<CatalogProduct | null>(null);
+  const [stockDelta, setStockDelta] = useState<number>(1);
+  const [stockReason, setStockReason] = useState<string>('');
+  const [stockMovementType, setStockMovementType] = useState<StockMovement['type']>('Entrada');
+
+  // Dashboard management state
+  const [adminSearch, setAdminSearch] = useState('');
+  const [adminCategory, setAdminCategory] = useState('Todos');
+  const [adminPage, setAdminPage] = useState(1);
+  const [adminRowsPerPage, setAdminRowsPerPage] = useState(15);
+  const [newProductModalOpen, setNewProductModalOpen] = useState(false);
+  const [newProdName, setNewProdName] = useState('');
+  const [newProdCategory, setNewProdCategory] = useState('Análises Clínicas');
+  const [newProdPrice, setNewProdPrice] = useState<number>(150000);
+  const [newProdStock, setNewProdStock] = useState<number>(5);
+  const [newProdMin, setNewProdMin] = useState<number>(1);
+  const [newProdDesc, setNewProdDesc] = useState('');
+  const [newProdImg, setNewProdImg] = useState('');
+  const [isSubmittingAdmin, setIsSubmittingAdmin] = useState(false);
+
+  // Cart & Order Form State
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [discountPercent, setDiscountPercent] = useState(0);
+
+  // Contact & WhatsApp Ordering Modal States (Adaptado ao design da loja)
+  const [orderContactModalOpen, setOrderContactModalOpen] = useState(false);
+  const [orderStep, setOrderStep] = useState<'contact' | 'whatsapp'>('contact');
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
+  const [orderCustomerName, setOrderCustomerName] = useState('');
+  const [orderCustomerPhone, setOrderCustomerPhone] = useState('');
+  const [orderDeliveryAddress, setOrderDeliveryAddress] = useState('');
+  const [orderRemarks, setOrderRemarks] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [whatsAppOrderUrl, setWhatsAppOrderUrl] = useState('');
+  const [activeOrderItems, setActiveOrderItems] = useState<Array<{ product: CatalogProduct; quantity: number }>>([]);
+
+  // Checkout Fields
+  const [customerName, setCustomerName] = useState('');
+  const [customerNif, setCustomerNif] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [selectedProvinceId, setSelectedProvinceId] = useState('luanda');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodId>('multicaixa_express');
+  const [paymentPhone, setPaymentPhone] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+
+  // Orders and Audit Logs
+  const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
+
+  // Category horizontal scroll ref
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+
+  // Initialize theme from storage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('laurinita_theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  function toggleTheme() {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('laurinita_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('laurinita_theme', 'light');
+    }
+  }
+
+  // Hero carousel auto-timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Auto-dismiss all alerts automatically
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => {
+      setNotice('');
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => {
+      setError('');
+    }, 3800);
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  useEffect(() => {
+    if (!loginError) return;
+    const timer = setTimeout(() => {
+      setLoginError('');
+    }, 3800);
+    return () => clearTimeout(timer);
+  }, [loginError]);
+
+  // Fetch Database Data on load
+  async function fetchDbData() {
+    try {
+      let token = currentUser?.token || '';
+      if (!token && typeof window !== 'undefined') {
+        const savedSession = localStorage.getItem('laurinita_session');
+        if (savedSession) {
+          try {
+            const parsed = JSON.parse(savedSession);
+            token = parsed?.token || '';
+          } catch (e) {}
+        }
+      }
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/api/store', { headers });
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (Array.isArray(data.products) && data.products.length > 0) {
+          setProducts(data.products);
+          setDbConnected(true);
+        }
+        if (Array.isArray(data.orders)) {
+          setOrders(data.orders);
+        }
+        if (Array.isArray(data.movements)) {
+          setStockMovements(data.movements);
+        }
+      }
+    } catch (err) {
+      console.warn('API /api/store offline or in local fallback mode:', err);
+    }
+  }
+
+  useEffect(() => {
+    fetchDbData();
+    // Load local stored cart and customer
+    const savedCart = localStorage.getItem('laurinita_cart');
+    if (savedCart) {
+      try { setCart(JSON.parse(savedCart)); } catch (e) {}
+    }
+    const savedCustomer = localStorage.getItem('laurinita_customer');
+    if (savedCustomer) {
+      try {
+        const c = JSON.parse(savedCustomer);
+        setCustomerName(c.name || '');
+        setCustomerNif(c.nif || '');
+        setCustomerPhone(c.phone || '');
+        setCustomerEmail(c.email || '');
+        setSelectedProvinceId(c.provinceId || 'luanda');
+        setDeliveryAddress(c.address || '');
+      } catch (e) {}
+    }
+    const savedFavs = localStorage.getItem('laurinita_favorites');
+    if (savedFavs) {
+      try { setFavorites(JSON.parse(savedFavs)); } catch (e) {}
+    }
+
+    // Load active session from localStorage
+    const savedSession = localStorage.getItem('laurinita_session');
+    if (savedSession) {
+      try { setCurrentUser(JSON.parse(savedSession)); } catch (e) {}
+    }
+
+    setReady(true);
+  }, []);
+
+  // Persist cart
+  useEffect(() => {
+    if (ready) {
+      localStorage.setItem('laurinita_cart', JSON.stringify(cart));
+    }
+  }, [cart, ready]);
+
+  // Persist favorites
+  function toggleFavorite(id: string) {
+    setFavorites((prev) => {
+      const exists = prev.includes(id);
+      const next = exists ? prev.filter((item) => item !== id) : [...prev, id];
+      localStorage.setItem('laurinita_favorites', JSON.stringify(next));
+      setNotice(exists ? 'Item removido dos favoritos.' : 'Item salvo nos favoritos!');
+      return next;
+    });
+  }
+
+  // Categories list
+  const categories = useMemo(() => {
+    const list = Array.from(new Set(catalog.map((p) => p.category)));
+    return ['Todos', ...list];
+  }, []);
+
+  // Filtered & Sorted Products
+  const filteredProducts = useMemo(() => {
+    let result = products.filter((p) => {
+      const matchesCategory = selectedCategory === 'Todos' || p.category === selectedCategory;
+      const matchesSearch =
+        !searchQuery.trim() ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.technicalSpecs && p.technicalSpecs.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStock = !onlyAvailable || p.isAvailable;
+      const matchesDiscount = !onlyDiscount || (p.discount && p.discount > 0);
+      return matchesCategory && matchesSearch && matchesStock && matchesDiscount;
+    });
+
+    if (sortOption === 'price_asc') {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortOption === 'price_desc') {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortOption === 'name') {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === 'newest') {
+      result.reverse();
+    }
+    return result;
+  }, [products, selectedCategory, searchQuery, sortOption, onlyAvailable, onlyDiscount]);
+
+  // Admin Dashboard Computed Values
+  const adminCategories = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => { if (p.category) set.add(p.category); });
+    return ['Todos', ...Array.from(set)];
+  }, [products]);
+
+  const filteredAdminProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchCat = adminCategory === 'Todos' || p.category === adminCategory;
+      const matchSearch =
+        !adminSearch.trim() ||
+        p.name.toLowerCase().includes(adminSearch.toLowerCase()) ||
+        p.category.toLowerCase().includes(adminSearch.toLowerCase()) ||
+        p.id.toLowerCase().includes(adminSearch.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [products, adminSearch, adminCategory]);
+
+  const lowStockProducts = useMemo(() => {
+    return products.filter((p) => p.stock <= (p.minimum || 1));
+  }, [products]);
+
+  const totalInventoryUnits = useMemo(() => {
+    return products.reduce((acc, p) => acc + (p.stock || 0), 0);
+  }, [products]);
+
+  // Admin Pagination computed values
+  const totalAdminPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredAdminProducts.length / adminRowsPerPage));
+  }, [filteredAdminProducts.length, adminRowsPerPage]);
+
+  const paginatedAdminProducts = useMemo(() => {
+    const start = (adminPage - 1) * adminRowsPerPage;
+    return filteredAdminProducts.slice(start, start + adminRowsPerPage);
+  }, [filteredAdminProducts, adminPage, adminRowsPerPage]);
+
+  const startAdminItem = useMemo(() => {
+    return filteredAdminProducts.length === 0 ? 0 : (adminPage - 1) * adminRowsPerPage + 1;
+  }, [filteredAdminProducts.length, adminPage, adminRowsPerPage]);
+
+  const endAdminItem = useMemo(() => {
+    return Math.min(adminPage * adminRowsPerPage, filteredAdminProducts.length);
+  }, [filteredAdminProducts.length, adminPage, adminRowsPerPage]);
+
+  useEffect(() => {
+    setAdminPage(1);
+  }, [adminSearch, adminCategory, adminRowsPerPage]);
+
+  // Cart Calculations
+  const cartLines = useMemo(() => {
+    return Object.entries(cart)
+      .map(([id, quantity]) => {
+        const product = products.find((p) => p.id === id);
+        if (!product || quantity <= 0) return null;
+        return {
+          product,
+          quantity,
+          lineTotal: product.price * quantity,
+        };
+      })
+      .filter((item): item is { product: CatalogProduct; quantity: number; lineTotal: number } => item !== null);
+  }, [cart, products]);
+
+  const cartCount = useMemo(() => {
+    return Object.values(cart).reduce((sum, q) => sum + q, 0);
+  }, [cart]);
+
+  const cartSubtotal = useMemo(() => {
+    return cartLines.reduce((sum, line) => sum + line.lineTotal, 0);
+  }, [cartLines]);
+
+  const currentProvince = useMemo(() => {
+    return ANGOLA_PROVINCES.find((p) => p.id === selectedProvinceId) || ANGOLA_PROVINCES[0];
+  }, [selectedProvinceId]);
+
+  const deliveryFee = useMemo(() => {
+    if (cartSubtotal === 0) return 0;
+    return currentProvince.fee;
+  }, [cartSubtotal, currentProvince]);
+
+  const discountAmount = useMemo(() => {
+    if (!couponApplied || discountPercent <= 0) return 0;
+    return (cartSubtotal * discountPercent) / 100;
+  }, [couponApplied, discountPercent, cartSubtotal]);
+
+  const cartTotal = useMemo(() => {
+    return Math.max(0, cartSubtotal - discountAmount + deliveryFee);
+  }, [cartSubtotal, discountAmount, deliveryFee]);
+
+  // Cart actions
+  function addToCart(product: CatalogProduct) {
+    setCart((prev) => {
+      const current = prev[product.id] || 0;
+      return { ...prev, [product.id]: current + 1 };
+    });
+    setNotice(`"${product.name}" adicionado à sacola.`);
+  }
+
+  function updateQuantity(id: string, delta: number) {
+    setCart((prev) => {
+      const current = prev[id] || 0;
+      const next = current + delta;
+      const updated = { ...prev };
+      if (next <= 0) {
+        delete updated[id];
+      } else {
+        updated[id] = next;
+      }
+      return updated;
+    });
+  }
+
+  function applyCoupon() {
+    if (couponCode.trim().toUpperCase() === 'LAURINITA10') {
+      setCouponApplied(true);
+      setDiscountPercent(10);
+      setNotice('Cupom LAURINITA10 aplicado! 10% de desconto concedido.');
+    } else {
+      setError('Cupom inválido. Experimente "LAURINITA10"');
+    }
+  }
+
+  // Active Order Items for Contact & WhatsApp Flow (adaptado ao design da loja)
+  const activeOrderList = useMemo(() => {
+    if (activeOrderItems.length > 0) return activeOrderItems;
+    return cartLines.map((l) => ({ product: l.product, quantity: l.quantity }));
+  }, [activeOrderItems, cartLines]);
+
+  const activeOrderCount = useMemo(() => {
+    return activeOrderList.reduce((sum, item) => sum + item.quantity, 0);
+  }, [activeOrderList]);
+
+  const activeOrderTotal = useMemo(() => {
+    const sub = activeOrderList.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const fee = deliveryMethod === 'delivery' ? deliveryFee : 0;
+    return sub + fee;
+  }, [activeOrderList, deliveryMethod, deliveryFee]);
+
+  function handleStartOrder(product?: CatalogProduct) {
+    if (product) {
+      setActiveOrderItems([{ product, quantity: 1 }]);
+    } else if (cartLines.length > 0) {
+      setActiveOrderItems(cartLines.map((l) => ({ product: l.product, quantity: l.quantity })));
+    } else {
+      setNotice('Selecione um equipamento para fazer o pedido.');
+      return;
+    }
+    setOrderStep('contact');
+    setOrderContactModalOpen(true);
+    setCartDrawerOpen(false);
+  }
+
+  async function handleProceedToWhatsApp(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (!orderCustomerName.trim()) {
+      setError('Por favor, informe o seu nome.');
+      return;
+    }
+    if (!orderCustomerPhone.trim()) {
+      setError('Por favor, informe o seu número de telemóvel / WhatsApp.');
+      return;
+    }
+    if (deliveryMethod === 'delivery' && !orderDeliveryAddress.trim()) {
+      setError('Por favor, informe o endereço completo para entrega.');
+      return;
+    }
+
+    const itemsToOrder = activeOrderItems.length > 0 ? activeOrderItems : cartLines;
+    if (itemsToOrder.length === 0) {
+      setError('O seu pedido não possui equipamentos.');
+      return;
+    }
+
+    const subtotal = itemsToOrder.reduce((acc, i) => acc + i.product.price * i.quantity, 0);
+    const fee = deliveryMethod === 'delivery' ? deliveryFee : 0;
+    const finalTotal = subtotal + fee;
+
+    const itemsText = itemsToOrder
+      .map((item, idx) => `${idx + 1}. *${item.product.name}*\n   Qtd: ${item.quantity} un. | Valor: ${formatKwanzas(item.product.price * item.quantity)}`)
+      .join('\n\n');
+
+    const message = `Olá, Laurinita Distribuidora Ltda! 👋
+Gostaria de formalizar o seguinte pedido:
+
+👤 *DADOS DE CONTATO:*
+• *Nome:* ${orderCustomerName.trim()}
+• *Telemóvel:* ${orderCustomerPhone.trim()}
+• *Tipo de Recebimento:* ${deliveryMethod === 'delivery' ? '🚚 Entrega em domicílio' : '🛍️ Para levantar/remover'}
+${deliveryMethod === 'delivery' ? `• *Endereço:* ${orderDeliveryAddress.trim()}\n• *Província:* ${currentProvince.name}` : '• *Local de Levantamento:* Loja Laurinita Luanda'}
+${orderRemarks.trim() ? `• *Observações:* ${orderRemarks.trim()}\n` : ''}
+📦 *ITENS DO PEDIDO:*
+${itemsText}
+
+💰 *VALOR TOTAL:* ${formatKwanzas(finalTotal)}
+----------------------------------
+Aguardo confirmação e dados para pagamento / fatura!`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const waUrl = `https://wa.me/${STORE_INFO.whatsappNumber}?text=${encodedMessage}`;
+    setWhatsAppOrderUrl(waUrl);
+
+    // Generate real QR code
+    try {
+      const qrData = await QRCode.toDataURL(waUrl, {
+        width: 320,
+        margin: 2,
+        color: {
+          dark: '#071326',
+          light: '#ffffff'
+        }
+      });
+      setQrCodeUrl(qrData);
+    } catch (err) {
+      console.warn('QR generation error:', err);
+      setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(waUrl)}`);
+    }
+
+    // Register order asynchronously in DB
+    try {
+      fetch('/api/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'checkout',
+          customer: orderCustomerName.trim(),
+          phone: orderCustomerPhone.trim(),
+          address: deliveryMethod === 'delivery' ? orderDeliveryAddress.trim() : 'Levantamento no Armazém',
+          provinceId: selectedProvinceId,
+          paymentMethod: 'multicaixa_express',
+          items: itemsToOrder.map((it) => ({ id: it.product.id, quantity: it.quantity })),
+          notes: `[Pedido WhatsApp / ${deliveryMethod === 'delivery' ? 'Entrega' : 'Levantamento'}] ${orderRemarks.trim()}`
+        })
+      }).then(() => fetchDbData()).catch(() => {});
+    } catch (e) {}
+
+    setOrderStep('whatsapp');
+  }
+
+  // User Login Handler
+  async function handleLogin(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+
+    try {
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Credenciais inválidas.');
+      }
+
+      const session: UserSession = {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        role: data.user.role,
+        token: data.user?.token || data.token,
+      };
+
+      setCurrentUser(session);
+      localStorage.setItem('laurinita_session', JSON.stringify(session));
+      setShowLoginModal(false);
+      setUserMenuOpen(false);
+      setNotice(`Bem-vindo(a), ${session.name}! Sessão iniciada com sucesso.`);
+      fetchDbData();
+    } catch (err: any) {
+      setLoginError(err.message || 'Erro ao realizar login.');
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  function handleLogout() {
+    setCurrentUser(null);
+    localStorage.removeItem('laurinita_session');
+    setView('shop');
+    setUserMenuOpen(false);
+    setNotice('Sessão terminada.');
+  }
+
+  function fillDemoAccount(account: typeof DEFAULT_ACCOUNTS[0]) {
+    setLoginEmail(account.email);
+    setLoginPassword(account.password);
+  }
+
+  // Stock manipulation and management actions
+  async function handleQuickStock(productId: string, delta: number) {
+    if (!currentUser || !['admin', 'manager'].includes(currentUser.role)) {
+      setError('Acesso restrito: apenas Administrador ou Gerente podem alterar o estoque.');
+      return;
+    }
+
+    const prod = products.find((p) => p.id === productId);
+    if (!prod) return;
+    if (prod.stock + delta < 0) {
+      setError(`O estoque de "${prod.name}" não pode ficar negativo (atual: ${prod.stock} un.).`);
+      return;
+    }
+
+    const reason = delta > 0 ? 'Entrada rápida no painel de gestão' : 'Saída rápida no painel de gestão';
+
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, stock: p.stock + delta, isAvailable: p.stock + delta > 0 } : p))
+    );
+
+    try {
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({
+          action: 'movement',
+          productId,
+          delta,
+          reason,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao sincronizar estoque no banco.');
+      }
+
+      setNotice(`Estoque de "${prod.name}" atualizado (${delta > 0 ? `+${delta}` : delta} un.).`);
+      fetchDbData();
+    } catch (err: any) {
+      setError(err.message || 'Falha ao atualizar estoque no banco de dados.');
+      fetchDbData();
+    }
+  }
+
+  async function submitManualMovement(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stockModalProduct) return;
+    if (!currentUser || !['admin', 'manager'].includes(currentUser.role)) {
+      setError('Apenas Administradores e Gerentes podem registar movimentações.');
+      return;
+    }
+
+    const qty = Math.max(1, Math.round(Number(stockDelta)));
+    const finalDelta = stockMovementType === 'Entrada' ? qty : -qty;
+
+    if (stockModalProduct.stock + finalDelta < 0) {
+      setError(`A saída solicitada (${qty} un.) excede o saldo atual em estoque (${stockModalProduct.stock} un.).`);
+      return;
+    }
+
+    setIsSubmittingAdmin(true);
+    try {
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({
+          action: 'movement',
+          productId: stockModalProduct.id,
+          delta: finalDelta,
+          reason: stockReason.trim() || `${stockMovementType} manual de inventário`,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao processar movimentação.');
+      }
+
+      setNotice(`Movimentação de ${finalDelta > 0 ? `+${finalDelta}` : finalDelta} un. em "${stockModalProduct.name}" registada no banco com sucesso.`);
+      setStockModalProduct(null);
+      setStockReason('');
+      setStockDelta(1);
+      fetchDbData();
+    } catch (err: any) {
+      setError(err.message || 'Erro ao gravar movimentação no banco.');
+    } finally {
+      setIsSubmittingAdmin(false);
+    }
+  }
+
+  async function handleUpdateOrderStatus(orderId: string, newStatus: OrderStatus) {
+    if (!currentUser || !['admin', 'manager', 'operator'].includes(currentUser.role)) {
+      setError('Permissão insuficiente para alterar o status da encomenda.');
+      return;
+    }
+
+    // Optimistic update
+    setOrders((prev) =>
+      prev.map((o: any) => (o.id === orderId ? { ...o, status: newStatus } : o))
+    );
+
+    try {
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({
+          action: 'status',
+          id: orderId,
+          status: newStatus,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao atualizar status da encomenda.');
+      }
+
+      setNotice(`Encomenda #${orderId} atualizada para "${newStatus}".`);
+      fetchDbData();
+    } catch (err: any) {
+      setError(err.message || 'Falha ao atualizar status no banco.');
+      fetchDbData();
+    }
+  }
+
+  async function handleCreateProduct(e: React.FormEvent) {
+    e.preventDefault();
+    if (!currentUser || !['admin', 'manager'].includes(currentUser.role)) {
+      setError('Apenas Administrador ou Gerente podem cadastrar equipamentos.');
+      return;
+    }
+
+    if (!newProdName.trim() || newProdPrice <= 0) {
+      setError('Preencha o nome do equipamento e um preço válido em Kwanzas.');
+      return;
+    }
+
+    setIsSubmittingAdmin(true);
+    try {
+      const payloadProduct = {
+        name: newProdName.trim(),
+        category: newProdCategory,
+        price: Number(newProdPrice),
+        description: newProdDesc.trim() || 'Equipamento hospitalar e clínico certificado com garantia oficial.',
+        minimum: Number(newProdMin) || 1,
+        imageUrl: newProdImg.trim() || '/products/monitor-uti.png',
+        active: true,
+      };
+
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`,
+        },
+        body: JSON.stringify({
+          action: 'product',
+          product: payloadProduct,
+          initialStock: Number(newProdStock) || 0,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao salvar novo equipamento.');
+      }
+
+      setNotice(`Equipamento "${newProdName}" cadastrado no banco com estoque inicial de ${newProdStock} un.!`);
+      setNewProductModalOpen(false);
+      setNewProdName('');
+      setNewProdDesc('');
+      setNewProdPrice(150000);
+      setNewProdStock(5);
+      setNewProdImg('');
+      fetchDbData();
+    } catch (err: any) {
+      setError(err.message || 'Erro ao cadastrar equipamento.');
+    } finally {
+      setIsSubmittingAdmin(false);
+    }
+  }
+
+  // Checkout submission
+  async function handleCheckoutSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!cartLines.length) return;
+
+    if (!customerName.trim() || !customerPhone.trim() || !deliveryAddress.trim()) {
+      setError('Por favor preencha o Nome, Telefone e Endereço de entrega.');
+      return;
+    }
+
+    if (selectedPaymentMethod === 'multicaixa_express') {
+      const targetPhone = (paymentPhone || customerPhone).replace(/\s+/g, '');
+      if (!/^9\d{8}$/.test(targetPhone)) {
+        setError('Número MULTICAIXA Express inválido. Insira 9 dígitos começando por 9 (ex: 923 000 000).');
+        return;
+      }
+    }
+
+    if (selectedPaymentMethod === 'cash_on_delivery' && !['luanda', 'bengo'].includes(selectedProvinceId)) {
+      setError('O Pagamento na Entrega está disponível exclusivamente para as províncias de Luanda e Bengo.');
+      return;
+    }
+
+    setSubmittingOrder(true);
+    try {
+      const payloadItems = cartLines.map((l) => ({
+        id: l.product.id,
+        quantity: l.quantity,
+      }));
+
+      const res = await fetch('/api/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'checkout',
+          customer: customerName,
+          phone: customerPhone,
+          email: customerEmail,
+          nif: customerNif,
+          address: deliveryAddress,
+          provinceId: selectedProvinceId,
+          paymentMethod: selectedPaymentMethod,
+          items: payloadItems,
+          notes: orderNotes,
+        }),
+      });
+
+      const data = (await res.json()) as any;
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao processar a encomenda.');
+      }
+
+      const orderNumber = data.orderId || `LAU-${Date.now().toString().slice(-6)}`;
+      const newOrder: OrderRecord = {
+        id: orderNumber,
+        orderNumber,
+        customerName,
+        customerPhone,
+        customerEmail,
+        provinceId: selectedProvinceId,
+        provinceName: currentProvince.name,
+        deliveryAddress,
+        paymentMethod: selectedPaymentMethod,
+        items: cartLines.map((l) => ({
+          productId: l.product.id,
+          name: l.product.name,
+          price: l.product.price,
+          quantity: l.quantity,
+        })),
+        subtotal: cartSubtotal,
+        deliveryFee,
+        total: cartTotal,
+        status: 'Pendente',
+        createdAt: new Date().toLocaleString('pt-AO'),
+        notes: orderNotes,
+      };
+
+      setOrders((prev) => [newOrder, ...prev]);
+      setCart({});
+      setCheckoutModalOpen(false);
+      setCartDrawerOpen(false);
+      setNotice(`Encomenda #${orderNumber} registada com sucesso! Fatura Proforma gerada.`);
+      fetchDbData();
+    } catch (err: any) {
+      setError(err.message || 'Erro ao emitir fatura proforma.');
+    } finally {
+      setSubmittingOrder(false);
+    }
+  }
+
+  // Handle chat message
+  function sendChatMessage() {
+    if (!chatMessage.trim()) return;
+    const msg = chatMessage.trim();
+    setChatHistory((prev) => [
+      ...prev,
+      { sender: 'user', text: msg, time: 'Agora' }
+    ]);
+    setChatMessage('');
+
+    setTimeout(() => {
+      let reply = 'Agradecemos o seu contacto! Um dos nossos consultores biomédicos entrará em contacto direto pelo WhatsApp para detalhar a cotação oficial com NIF.';
+      if (msg.toLowerCase().includes('nif') || msg.toLowerCase().includes('factura')) {
+        reply = 'Emitimos Facturas Proforma e Facturas Recibo com NIF oficial em total conformidade com a AGT Angola. Pode solicitar diretamente no checkout ou através do nosso WhatsApp oficial.';
+      } else if (msg.toLowerCase().includes('entrega') || msg.toLowerCase().includes('prazo')) {
+        reply = 'Realizamos entregas em Luanda em 24h a 48h úteis e despachamos para todas as restantes províncias de Angola via transportadoras parceiras.';
+      }
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'agent', text: reply, time: 'Agora' }
+      ]);
+    }, 800);
+  }
+
+  // Carousel Slides data (Medical Equipment Hospitalar)
+  const heroSlides = [
+    {
+      kicker: 'DESTAQUE HOSPITALAR • UTI & EMERGÊNCIA',
+      title: 'Monitor Multiparamétrico',
+      titleHighlight: 'UTI 12.1" COLORIDO',
+      desc: 'Medição em tempo real de ECG, SpO2, NIBP, Frequência Respiratória e Temperatura com alarmes sonoros e visuais. Homologado para Unidades de Cuidados Intensivos em Angola.',
+      price: '3.850.000,00 AOA',
+      image: '/products/monitor-uti.png',
+      productSlug: 'monitor-de-sinais-vitais',
+      category: 'UTI & Cuidados Intensivos'
+    },
+    {
+      kicker: 'ANÁLISES CLÍNICAS & LABORATÓRIO',
+      title: 'Microscópio Biológico',
+      titleHighlight: 'COM TELA LCD INTEGRADA',
+      desc: 'Óptica acromática de alta precisão, ampliação até 2500x, ecrã digital LCD integrado para visualização em grupo e diagnóstico celular com laudo imediato.',
+      price: '620.000,00 AOA',
+      image: '/products/microscopio-lcd.png',
+      productSlug: 'microscopio-biologico-lcd',
+      category: 'Análises Clínicas'
+    },
+    {
+      kicker: 'DIAGNÓSTICO & IMAGIOLOGIA CLÍNICA',
+      title: 'Ecógrafo Doppler Colorido',
+      titleHighlight: 'PORTÁTIL MULTIDISCIPLINAR',
+      desc: 'Sondas convexa e linear de alta frequência, ecrã antirreflexo de 15 polegadas, pacote completo de ginecologia, cardiologia e obstetrícia com fatura formal com NIF. Entrega garantida e faturação em Luanda por 12.400.000,00 AOA.',
+      price: '12.400.000,00 AOA',
+      image: '/products/ecografo-mindray.png',
+      productSlug: 'ecografo-doppler-colorido',
+      category: 'Diagnóstico & Imagiologia'
+    }
+  ];
+
+  return (
+    <div className={`laurinita-app ${isDarkMode ? 'dark' : ''}`}>
+      {/* Toast Notification */}
+      {notice && (
+        <div className="toast-notification toast-success" role="status">
+          <CheckCircle2 size={18} className="toast-icon toast-icon-success" />
+          <span className="toast-text">{notice}</span>
+          <button onClick={() => setNotice('')} className="toast-close-btn" aria-label="Fechar">
+            <X size={15} />
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="toast-notification toast-error" role="alert">
+          <AlertCircle size={18} className="toast-icon toast-icon-error" />
+          <span className="toast-text">{error}</span>
+          <button onClick={() => setError('')} className="toast-close-btn" aria-label="Fechar">
+            <X size={15} />
+          </button>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 1. TOP BAR STRIP (ESTILO RACHI.AO / BOTICÁRIO)                            */}
+      {/* ========================================================================= */}
+      <div className="store-top-bar">
+        <div className="top-bar-container">
+          <div className="top-bar-left">
+            {/* Acessibilidade */}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="top-bar-dropdown-trigger"
+                onClick={() => { setOpenAcess(!openAcess); setOpenGrupo(false); }}
+              >
+                <Eye size={13} className="top-bar-icon" />
+                <span>Acessibilidade</span>
+                <ChevronDown size={11} />
+              </button>
+              {openAcess && (
+                <div className="top-bar-popover">
+                  <div className="popover-header">Opções de Visualização</div>
+                  <button
+                    type="button"
+                    className="popover-item"
+                    onClick={() => { toggleTheme(); setOpenAcess(false); }}
+                  >
+                    <div className="popover-icon-box">
+                      {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800 }}>{isDarkMode ? 'Modo Claro' : 'Alto Contraste / Modo Escuro'}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Alternar aparência visual do portal</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    className="popover-item"
+                    onClick={() => { setNotice('Tamanho de texto configurado para conforto hospitalar.'); setOpenAcess(false); }}
+                  >
+                    <div className="popover-icon-box">
+                      <Sparkles size={16} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800 }}>Leitura Ampliada</div>
+                      <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Visualização padrão recomendada</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          <div className="top-bar-right">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 700 }}>
+              <CreditCard size={13} color="#f5a800" />
+              <span>Moeda: Kwanzas (AOA)</span>
+            </span>
+            <a
+              href={`https://wa.me/${STORE_INFO.whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'inherit', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 700 }}
+            >
+              <Phone size={12} color="#25d366" />
+              <span>+244 923 333 804</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 2. MAIN HEADER (EXACT OBOTICÁRIO / RACHI E-COMMERCE HEADER)               */}
+      {/* ========================================================================= */}
+      <header className="store-main-header">
+        <div className="main-header-container">
+          {/* Brand Logo & Title */}
+          <div className="store-brand-link" onClick={() => navigateTo('shop')} role="button" tabIndex={0}>
+            <img
+              src={STORE_INFO.logoUrl}
+              alt="Laurinita"
+              className="store-brand-logo-img"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+            <div className="store-brand-titles">
+              <span className="store-brand-name">LAURINITA</span>
+              <span className="store-brand-badge">Distribuidora Ltda</span>
+            </div>
+          </div>
+
+          {/* Search Pill Input */}
+          <div className="store-search-container">
+            <input
+              type="search"
+              placeholder="O que você procura hoje? (ex: Monitor, Cama, Ecógrafo, Esterilizador...)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="store-search-pill"
+            />
+            <button
+              type="button"
+              className="store-search-action-btn"
+              title="Buscar equipamentos"
+            >
+              <Search size={18} />
+            </button>
+          </div>
+
+          {/* Header Action Icons */}
+          <div className="store-header-actions">
+            {/* Dark / Light Mode Toggle */}
+            <button
+              type="button"
+              className="store-action-btn"
+              onClick={toggleTheme}
+              title={isDarkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+            >
+              {isDarkMode ? <Sun size={18} color="#f5a800" /> : <Moon size={18} />}
+            </button>
+
+            {/* User Account Popover */}
+            <div className="store-user-menu-wrap">
+              <button
+                type="button"
+                className="store-user-btn"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+              >
+                <div className="user-avatar-circle">
+                  {currentUser ? currentUser.name.slice(0, 2).toUpperCase() : 'U'}
+                </div>
+                <div className="user-btn-text">
+                  <div className="user-btn-name">
+                    {currentUser ? `Olá, ${currentUser.name.split(' ')[0]}` : 'Iniciar Sessão'}
+                  </div>
+                  <div className="user-btn-role">
+                    {currentUser ? ROLE_PERMISSIONS[currentUser.role]?.badgeLabel : 'Conta Hospitalar'}
+                  </div>
+                </div>
+                <ChevronDown size={12} color="#94a3b8" />
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 1040 }}
+                    onClick={() => setUserMenuOpen(false)}
+                  />
+                  <div className="store-user-popover" style={{ zIndex: 1050 }}>
+                    {currentUser ? (
+                      <div>
+                        <div className="user-popover-profile">
+                          <div className="user-avatar-circle" style={{ width: 40, height: 40, fontSize: '0.9rem' }}>
+                            {currentUser.name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="user-popover-info">
+                            <b>{currentUser.name}</b>
+                            <span>{currentUser.email}</span>
+                            <span
+                              className="user-popover-badge"
+                              style={{
+                                backgroundColor: ROLE_PERMISSIONS[currentUser.role]?.color || '#071326',
+                                color: '#ffffff'
+                              }}
+                            >
+                              {ROLE_PERMISSIONS[currentUser.role]?.badgeLabel}
+                            </span>
+                          </div>
+                        </div>
+
+                        <hr style={{ margin: '12px 0', borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0' }} />
+
+                        {['admin', 'manager', 'operator'].includes(currentUser.role) && (
+                          <button
+                            type="button"
+                            className="popover-item"
+                            style={{ fontWeight: 800, color: '#f5a800', marginBottom: 4 }}
+                            onClick={() => { navigateTo('admin'); setUserMenuOpen(false); }}
+                          >
+                            <LayoutDashboard size={15} />
+                            <span>Dashboard</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          className="popover-item"
+                          style={{ color: '#e11d48', fontWeight: 700 }}
+                          onClick={handleLogout}
+                        >
+                          <LogOut size={15} />
+                          <span>Terminar Sessão</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <h4 style={{ fontSize: '0.88rem', fontWeight: 800, marginBottom: 6 }}>Conta Administrativa & Hospitalar</h4>
+                        <p style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: 12 }}>
+                          Aceda para emitir faturas, gerir o catálogo de 80 produtos e aceder ao dashboard.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn-comprar"
+                          onClick={() => { setShowLoginModal(true); setUserMenuOpen(false); }}
+                        >
+                          <LogIn size={15} />
+                          <span>Acessar Minha Conta</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Sacola de Compras Button */}
+            <button
+              type="button"
+              className="store-cart-btn"
+              onClick={() => setCartDrawerOpen(true)}
+              title="Ver Sacola de Compras"
+            >
+              <div className="cart-icon-box">
+                <ShoppingBag size={18} className="cart-btn-icon" />
+                {cartCount > 0 && <span className="cart-badge-counter">{cartCount}</span>}
+              </div>
+              <span className="cart-btn-price">
+                {formatKwanzas(cartSubtotal)}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 3. HORIZONTAL CATEGORY BAR WITH < > SCROLL BUTTONS                       */}
+        {/* ========================================================================= */}
+        {view === 'shop' && (
+          <div className="store-cat-bar">
+            <div className="cat-bar-container">
+              <button
+                type="button"
+                className="cat-scroll-arrow-btn"
+                onClick={() => categoryScrollRef.current?.scrollBy({ left: -220, behavior: 'smooth' })}
+                title="Rolar categorias à esquerda"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="cat-scroll-track no-scrollbar" ref={categoryScrollRef}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`cat-nav-pill ${selectedCategory === cat ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat === 'Todos' && <span style={{ color: '#f5a800' }}>⚡</span>}
+                    {cat === 'UTI & Cuidados Intensivos' && <span style={{ color: '#e11d48' }}>❤️</span>}
+                    {cat === 'Mobiliário Hospitalar' && <span>🛏️</span>}
+                    {cat === 'Diagnóstico & Imagiologia' && <span style={{ color: '#00a3e0' }}>🔬</span>}
+                    <span>{cat}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="cat-scroll-arrow-btn"
+                onClick={() => categoryScrollRef.current?.scrollBy({ left: 220, behavior: 'smooth' })}
+                title="Rolar categorias à direita"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* MAIN VIEW CONTENT: SHOPPING OR ADMIN DASHBOARD */}
+      {view === 'shop' ? (
+        <main style={{ flex: 1 }}>
+          {/* ========================================================================= */}
+          {/* 4. HERO BANNER CAROUSEL (RÉPLICA FIEL RACHI.AO)                           */}
+          {/* ========================================================================= */}
+          <section className="boti-hero-carousel">
+            <div className="hero-carousel-container">
+              {/* Carousel Slides */}
+              {heroSlides.map((slide, idx) => (
+                idx === currentSlide && (
+                  <div key={idx} className="carousel-slide-content">
+                    {/* Left details */}
+                    <div className="hero-slide-text">
+                      <span className="hero-kicker-pill" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
+                        {slide.kicker}
+                      </span>
+                      <h1 className="hero-slide-title">
+                        {slide.title}<br />
+                        <span>{slide.titleHighlight}</span>
+                      </h1>
+                      <p className="hero-slide-desc">
+                        {slide.desc} Entrega garantida e faturação em Luanda por <strong>{slide.price}</strong>.
+                      </p>
+                      <div>
+                        <button
+                          type="button"
+                          className="hero-cta-btn"
+                          onClick={() => {
+                            setSelectedCategory(slide.category);
+                            setNotice(`Filtro "${slide.category}" ativado.`);
+                          }}
+                        >
+                          <span>Ver Equipamento no Catálogo</span>
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right transparent showcase pod - MODELO PRINT 1 */}
+                    <div className="hero-showcase-wrapper">
+                      {/* Decorative Shape 1: Bloco Amarelo/Dourado no topo esquerdo */}
+                      <div className="hero-decor-shape-gold" />
+
+                      {/* Decorative Shape 2: Bloco Cinza Neutro no canto inferior direito */}
+                      <div className="hero-decor-shape-grey" />
+
+                      <div
+                        className="hero-showcase-card"
+                        onClick={() => {
+                          const prod = products.find((p) => p.category === slide.category || p.name.toLowerCase().includes(slide.title.toLowerCase()));
+                          if (prod) setDetailProduct(prod);
+                        }}
+                      >
+                        <img
+                          src={slide.image}
+                          alt={slide.title}
+                          className="hero-showcase-img"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              ))}
+
+              {/* Arrow navigation buttons < and > (estilo Print 1) */}
+              <button
+                type="button"
+                className="hero-nav-arrow left"
+                onClick={() => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)}
+                aria-label="Slide anterior"
+              >
+                <ChevronLeft size={22} color="#059669" />
+              </button>
+
+              <button
+                type="button"
+                className="hero-nav-arrow right"
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % totalSlides)}
+                aria-label="Próximo slide"
+              >
+                <ChevronRight size={22} color="#059669" />
+              </button>
+
+              {/* Floating WhatsApp buy button */}
+              <a
+                href={`https://wa.me/${STORE_INFO.whatsappNumber}?text=Olá!%20Gostaria%20de%20solicitar%20cotação%20de%20equipamentos%20hospitalares.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hero-whatsapp-float"
+              >
+                <MessageCircle size={16} />
+                <span>Compre pelo WhatsApp</span>
+              </a>
+            </div>
+
+            {/* Dots indicator */}
+            <div className="hero-dots-row">
+              {heroSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`hero-dot ${currentSlide === idx ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </section>
+
+
+
+
+          {/* ========================================================================= */}
+          {/* 7. VITRINE PRINCIPAL DE PRODUTOS (BOTI-CARDS ESTILO BOTICÁRIO / RACHI)   */}
+          {/* ========================================================================= */}
+          <section className="catalog-vitrine-section" id="catalogo">
+            <div className="vitrine-header-row">
+              <div className="vitrine-header-titles">
+                <span className="kicker">{selectedCategory}</span>
+                <h2>Catálogo de Equipamentos Hospitalares</h2>
+                <p>Equipamentos certificados a pronta entrega com preços transparentes em Kwanzas (AOA).</p>
+              </div>
+
+              <div className="vitrine-controls">
+                <span className="vitrine-counter">
+                  <b>{filteredProducts.length}</b> equipamentos disponíveis
+                </span>
+
+                <select
+                  className="vitrine-select-sort"
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value as SortOption)}
+                >
+                  <option value="relevance">Mais Relevantes</option>
+                  <option value="price_asc">Menor Preço</option>
+                  <option value="price_desc">Maior Preço</option>
+                  <option value="name">Nome (A–Z)</option>
+                </select>
+
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    type="button"
+                    className="store-action-btn"
+                    style={{ width: 34, height: 34 }}
+                    onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                    title="Alternar modo de grelha"
+                  >
+                    {viewMode === 'grid' ? <ListIcon size={16} /> : <Grid3X3 size={16} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Cards Grid */}
+            {filteredProducts.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#ffffff', borderRadius: 24, border: '1px solid #e2e8f0' }}>
+                <Package size={48} color="#94a3b8" style={{ margin: '0 auto 12px auto' }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Nenhum equipamento encontrado</h3>
+                <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: 4 }}>
+                  Tente limpar a pesquisa ou selecionar outra categoria.
+                </p>
+                <button
+                  type="button"
+                  className="btn-comprar"
+                  style={{ width: 'auto', display: 'inline-flex', marginTop: 16 }}
+                  onClick={() => { setSelectedCategory('Todos'); setSearchQuery(''); setOnlyAvailable(false); setOnlyDiscount(false); }}
+                >
+                  Ver Todos os 80 Equipamentos
+                </button>
+              </div>
+            ) : (
+              <div className="products-boti-grid">
+                {filteredProducts.map((p) => {
+                  const isFav = favorites.includes(p.id);
+                  const isAvailable = p.isAvailable && p.stock > 0;
+
+                  return (
+                    <article key={p.id} className="boti-card">
+                      {/* Image Pod */}
+                      <div className="product-image-pod" onClick={() => setDetailProduct(p)}>
+                        {p.discount && p.discount > 0 ? (
+                          <div className="product-badges-corner">
+                            <span className="product-discount-pill">-{p.discount}% OFF</span>
+                          </div>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          className={`product-favorite-btn ${isFav ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
+                          title={isFav ? 'Remover dos favoritos' : 'Salvar nos favoritos'}
+                        >
+                          <Heart size={16} fill={isFav ? '#e11d48' : 'none'} />
+                        </button>
+
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="product-cutout-img"
+                          loading="lazy"
+                        />
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="boti-card-body">
+                        <div>
+                          <h3 className="boti-product-title" onClick={() => setDetailProduct(p)} title={p.name}>
+                            {p.name}
+                          </h3>
+
+                          <p className="boti-product-desc">
+                            {p.technicalSpecs || 'Equipamento hospitalar certificado com suporte técnico e calibração oficial.'}
+                          </p>
+                        </div>
+
+                        <div>
+                          {/* Pricing */}
+                          <div className="boti-card-pricing">
+                            {p.discount && p.discount > 0 && (
+                              <span className="price-old">
+                                De {formatKwanzas(Math.round(p.price * (1 + p.discount / 100)))}
+                              </span>
+                            )}
+                            <div className="price-current-row">
+                              <span className="price-label">Por:</span>
+                              <strong className="price-amount">{formatKwanzas(p.price)}</strong>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <button
+                            type="button"
+                            className="btn-comprar"
+                            onClick={() => handleStartOrder(p)}
+                          >
+                            <ShoppingBag size={15} />
+                            <span>Fazer Pedido</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className={`btn-adicionar-sacola ${cart[p.id] ? 'in-cart' : ''}`}
+                            onClick={() => addToCart(p)}
+                          >
+                            {cart[p.id] ? <Check size={14} /> : <Plus size={14} />}
+                            <span>{cart[p.id] ? `Na Sacola (${cart[p.id]})` : 'Adicionar à Sacola'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* ========================================================================= */}
+          {/* 8. CONSULTATIVE B2B BANNER (PROPOSTAS PARA CLÍNICAS & HOSPITAIS)          */}
+          {/* ========================================================================= */}
+          <section style={{ padding: '0 20px' }}>
+            <div className="boti-quote-banner">
+              <div>
+                <span className="b2b-kicker">Cotações Hospitalares & Fornecimento em Lote</span>
+                <h3 className="b2b-title">Precisa de Equipar uma Clínica ou Hospital em Angola?</h3>
+                <p className="b2b-desc">
+                  Elaboramos cadernos de encargos completos com Factura Proforma detalhada, prazos de entrega, certificações sanitárias internacionais e opções de montagem local.
+                </p>
+              </div>
+
+              <div className="b2b-actions">
+                <a
+                  href={`https://wa.me/${STORE_INFO.whatsappNumber}?text=Olá!%20Gostaria%20de%20uma%20cotação%20corporativa%20em%20lote%20para%20a%20minha%20clínica/hospital.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-b2b-whatsapp"
+                >
+                  <MessageCircle size={18} />
+                  <span>Falar com Consultor Hospitalar</span>
+                </a>
+                <button
+                  type="button"
+                  className="btn-b2b-proforma"
+                  onClick={() => setCheckoutModalOpen(true)}
+                >
+                  Solicitar Proforma Direta
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      ) : (
+        /* ========================================================================= */
+        /* ADMIN DASHBOARD VIEW (RBAC GUARDED WITH STAFF ROLES)                      */
+        /* ========================================================================= */
+        <main style={{ flex: 1, backgroundColor: isDarkMode ? '#040b17' : '#f8fafc' }}>
+          {!currentUser || !['admin', 'manager', 'operator'].includes(currentUser.role) ? (
+            /* ACCESS GUARD SCREEN */
+            <div className="admin-access-guard-screen">
+              <div className="access-guard-card">
+                <div className="guard-shield-header">
+                  <div className="guard-shield-icon-wrap">
+                    <Lock size={36} />
+                  </div>
+                  <h2>Acesso Restrito ao Painel</h2>
+                  <p>
+                    Esta área é exclusiva para a equipa da Laurinita Distribuidora Ltda. Selecione uma conta de demonstração para testar as permissões:
+                  </p>
+                </div>
+
+                {loginError && (
+                  <div style={{ backgroundColor: '#fee2e2', border: '1px solid #f87171', color: '#991b1b', padding: 10, borderRadius: 8, marginBottom: 16, fontSize: '0.85rem' }}>
+                    {loginError}
+                  </div>
+                )}
+
+                <div className="quick-roles-grid">
+                  {DEFAULT_ACCOUNTS.map((acc) => (
+                    <button
+                      key={acc.email}
+                      type="button"
+                      className={`quick-role-btn ${loginEmail === acc.email ? 'active' : ''}`}
+                      onClick={() => fillDemoAccount(acc)}
+                    >
+                      <div className="role-btn-top">
+                        <b>{acc.name}</b>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: 20, backgroundColor: ROLE_PERMISSIONS[acc.role]?.color || '#071326', color: '#ffffff' }}>
+                          {ROLE_PERMISSIONS[acc.role]?.badgeLabel}
+                        </span>
+                      </div>
+                      <small>{acc.email} · {acc.description}</small>
+                    </button>
+                  ))}
+                </div>
+
+                <form onSubmit={handleLogin}>
+                  <div className="form-field-group">
+                    <label className="form-field-label">Email Corporativo</label>
+                    <input
+                      type="email"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="form-field-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field-group">
+                    <label className="form-field-label">Palavra-passe</label>
+                    <input
+                      type="password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="form-field-input"
+                      required
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                    <button type="submit" className="btn-comprar" style={{ flex: 1 }} disabled={loginLoading}>
+                      <Key size={16} />
+                      <span>{loginLoading ? 'A validar...' : 'Entrar no Dashboard'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      style={{ padding: '10px 18px', background: 'none', border: '1px solid #cbd5e1', borderRadius: 12, cursor: 'pointer', fontWeight: 700 }}
+                      onClick={() => navigateTo('shop')}
+                    >
+                      Voltar à Loja
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          ) : (
+            /* AUTHENTICATED ADMIN DASHBOARD */
+            <div>
+              {/* Admin Tabs Bar */}
+              <div className="admin-tabs-wrapper">
+                <div className="admin-tabs-container">
+                  <div className="admin-tabs-list">
+                    <button
+                      type="button"
+                      className={`admin-tab-btn ${adminTab === 'overview' ? 'active' : ''}`}
+                      onClick={() => setAdminTab('overview')}
+                    >
+                      <LayoutDashboard size={16} />
+                      <span>Visão Geral</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`admin-tab-btn ${adminTab === 'products' ? 'active' : ''}`}
+                      onClick={() => setAdminTab('products')}
+                    >
+                      <Package size={16} />
+                      <span>Produtos</span>
+                      <span className="admin-tab-badge">{products.length}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`admin-tab-btn ${adminTab === 'orders' ? 'active' : ''}`}
+                      onClick={() => setAdminTab('orders')}
+                    >
+                      <ClipboardList size={16} />
+                      <span>Encomendas</span>
+                      <span className="admin-tab-badge">{orders.length}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`admin-tab-btn ${adminTab === 'stock' ? 'active' : ''}`}
+                      onClick={() => setAdminTab('stock')}
+                    >
+                      <Activity size={16} />
+                      <span>Estoque & Auditoria</span>
+                      {lowStockProducts.length > 0 && (
+                        <span className="admin-tab-badge" style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}>
+                          {lowStockProducts.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="admin-back-btn"
+                    onClick={() => navigateTo('shop')}
+                  >
+                    <ArrowLeft size={15} />
+                    <span>Voltar à Loja</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dashboard Content */}
+              <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 60px 24px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.7rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
+                      Painel de Gestão
+                    </h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-comprar"
+                    style={{ width: 'auto', padding: '10px 18px', gap: 8, borderRadius: 12 }}
+                    onClick={() => {
+                      fetchDbData();
+                      setNotice('Dados sincronizados com o banco de dados!');
+                    }}
+                  >
+                    <RefreshCw size={15} />
+                    <span>Sincronizar Banco</span>
+                  </button>
+                </div>
+
+                {/* Dashboard Metrics - 4 Responsive Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 18, marginBottom: 30 }}>
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Equipamentos
+                      </span>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Package size={18} />
+                      </div>
+                    </div>
+                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#f5a800', lineHeight: 1.1, margin: 0 }}>{products.length}</h3>
+                    <span style={{ fontSize: '0.72rem', color: '#10b981', display: 'block', marginTop: 6 }}>
+                      Persistidos no banco SQLite / D1
+                    </span>
+                  </div>
+
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Total em Estoque
+                      </span>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Activity size={18} />
+                      </div>
+                    </div>
+                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#059669', lineHeight: 1.1, margin: 0 }}>{totalInventoryUnits} un.</h3>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
+                      Unidades físicas disponíveis
+                    </span>
+                  </div>
+
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Encomendas Emitidas
+                      </span>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ClipboardList size={18} />
+                      </div>
+                    </div>
+                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0284c7', lineHeight: 1.1, margin: 0 }}>{orders.length}</h3>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
+                      Faturas proforma registadas
+                    </span>
+                  </div>
+
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Volume Financeiro
+                      </span>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#fef3c7', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <FileText size={18} />
+                      </div>
+                    </div>
+                    <h3 style={{ fontSize: '1.55rem', fontWeight: 900, color: '#10b981', lineHeight: 1.1, margin: 0 }}>
+                      {formatKwanzas(orders.reduce((acc, o) => acc + o.total, 0))}
+                    </h3>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
+                      Valor comercial faturado
+                    </span>
+                  </div>
+                </div>
+
+                {/* 1. ABA: VISÃO GERAL */}
+                {adminTab === 'overview' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    {/* Quick Action Toolbar */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'space-between', backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '16px 20px', borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Sparkles size={18} color="#f5a800" />
+                        <span style={{ fontWeight: 800, fontSize: '0.88rem' }}>Ações Rápidas de Gestão</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (products.length > 0) {
+                              setStockModalProduct(products[0]);
+                              setStockMovementType('Entrada');
+                              setStockDelta(5);
+                            }
+                          }}
+                          style={{ padding: '8px 14px', borderRadius: 10, backgroundColor: '#0f766e', color: '#ffffff', border: 'none', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                          <Plus size={14} />
+                          <span>+ Entrada de Estoque</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setNewProductModalOpen(true)}
+                          style={{ padding: '8px 14px', borderRadius: 10, backgroundColor: '#071326', color: '#f5a800', border: 'none', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                          <Package size={14} />
+                          <span>+ Cadastrar Equipamento</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setAdminTab('orders')}
+                          style={{ padding: '8px 14px', borderRadius: 10, backgroundColor: isDarkMode ? '#061124' : '#f1f5f9', color: isDarkMode ? '#ffffff' : '#0f172a', border: '1px solid #cbd5e1', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                          <ClipboardList size={14} />
+                          <span>Gerenciar Encomendas ({orders.length})</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Low Stock Alert Section */}
+                    {lowStockProducts.length > 0 && (
+                      <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #fecaca', padding: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <AlertTriangle size={18} />
+                            </div>
+                            <div>
+                              <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#dc2626' }}>
+                                Alerta de Estoque Crítico ({lowStockProducts.length} itens)
+                              </h4>
+                              <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Equipamentos com estoque igual ou abaixo da reserva mínima.</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setAdminTab('products')}
+                            style={{ background: 'none', border: 'none', color: '#0284c7', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                          >
+                            Ver todos no catálogo →
+                          </button>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                                <th style={{ padding: '8px 10px' }}>Equipamento</th>
+                                <th style={{ padding: '8px 10px' }}>Categoria</th>
+                                <th style={{ padding: '8px 10px' }}>Saldo Atual</th>
+                                <th style={{ padding: '8px 10px' }}>Mínimo</th>
+                                <th style={{ padding: '8px 10px', textAlign: 'right' }}>Reposição Rápida</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {lowStockProducts.slice(0, 5).map((p) => (
+                                <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                  <td style={{ padding: '10px', fontWeight: 700 }}>{p.name}</td>
+                                  <td style={{ padding: '10px', color: '#64748b' }}>{p.category}</td>
+                                  <td style={{ padding: '10px' }}>
+                                    <span style={{ padding: '2px 8px', borderRadius: 12, backgroundColor: p.stock === 0 ? '#fee2e2' : '#fef3c7', color: p.stock === 0 ? '#dc2626' : '#d97706', fontWeight: 900 }}>
+                                      {p.stock} un.
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '10px', color: '#64748b' }}>{p.minimum || 1} un.</td>
+                                  <td style={{ padding: '10px', textAlign: 'right' }}>
+                                    <div style={{ display: 'inline-flex', gap: 6 }}>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleQuickStock(p.id, 1)}
+                                        style={{ padding: '4px 8px', borderRadius: 6, backgroundColor: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', fontWeight: 800, fontSize: '0.72rem', cursor: 'pointer' }}
+                                        title="Adicionar 1 unidade imediatamente no banco"
+                                      >
+                                        +1 un.
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setStockModalProduct(p);
+                                          setStockMovementType('Entrada');
+                                          setStockDelta(5);
+                                        }}
+                                        style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#071326', color: '#f5a800', border: 'none', fontWeight: 800, fontSize: '0.72rem', cursor: 'pointer' }}
+                                      >
+                                        Repor Lote
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recent Orders Overview */}
+                    <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 20 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 900 }}>Últimas Encomendas Recebidas ({orders.length})</h4>
+                        <button
+                          type="button"
+                          onClick={() => setAdminTab('orders')}
+                          style={{ background: 'none', border: 'none', color: '#0284c7', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                        >
+                          Ver todas as encomendas →
+                        </button>
+                      </div>
+
+                      {orders.length === 0 ? (
+                        <p style={{ color: '#64748b', fontSize: '0.82rem', padding: '12px 0' }}>Nenhuma encomenda registada no banco até o momento.</p>
+                      ) : (
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                                <th style={{ padding: '8px 10px' }}>Código</th>
+                                <th style={{ padding: '8px 10px' }}>Cliente</th>
+                                <th style={{ padding: '8px 10px' }}>Total (AOA)</th>
+                                <th style={{ padding: '8px 10px' }}>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {orders.slice(0, 5).map((ord: any) => (
+                                <tr key={ord.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                  <td style={{ padding: '10px', fontWeight: 800, color: '#0284c7' }}>#{ord.id}</td>
+                                  <td style={{ padding: '10px' }}>{ord.customer || ord.customerName}</td>
+                                  <td style={{ padding: '10px', fontWeight: 800, color: '#10b981' }}>{formatKwanzas(ord.total)}</td>
+                                  <td style={{ padding: '10px' }}>
+                                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: '0.72rem', fontWeight: 800, backgroundColor: ord.status === 'Entregue' ? '#ecfdf5' : ord.status === 'Cancelado' ? '#fee2e2' : '#fef3c7', color: ord.status === 'Entregue' ? '#059669' : ord.status === 'Cancelado' ? '#dc2626' : '#d97706' }}>
+                                      {ord.status}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. ABA: PRODUTOS & CONTROLE RÁPIDO DE ESTOQUE (+/-) */}
+                {adminTab === 'products' && (
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 20, border: '1px solid #e2e8f0', padding: 20 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Gestão de Equipamentos ({filteredAdminProducts.length} de {products.length})</h3>
+                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Ajuste o estoque em tempo real com 1 clique (+ / -) ou cadastre novos itens.</p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setNewProductModalOpen(true)}
+                        style={{ padding: '8px 16px', borderRadius: 10, backgroundColor: '#071326', color: '#f5a800', border: 'none', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Plus size={15} />
+                        <span>Novo Equipamento</span>
+                      </button>
+                    </div>
+
+                    {/* Filter Bar */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                      <div style={{ flex: 1, minWidth: 220, position: 'relative' }}>
+                        <input
+                          type="text"
+                          placeholder="Pesquisar por equipamento ou categoria..."
+                          value={adminSearch}
+                          onChange={(e) => setAdminSearch(e.target.value)}
+                          style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem', backgroundColor: isDarkMode ? '#061124' : '#f8fafc', color: isDarkMode ? '#ffffff' : '#071326' }}
+                        />
+                        <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: 10, top: 10 }} />
+                        {adminSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setAdminSearch('')}
+                            style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                      </div>
+
+                      <select
+                        value={adminCategory}
+                        onChange={(e) => setAdminCategory(e.target.value)}
+                        style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem', backgroundColor: isDarkMode ? '#061124' : '#f8fafc', color: isDarkMode ? '#ffffff' : '#071326' }}
+                      >
+                        {adminCategories.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Products Table with Quick Stock Adjust */}
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
+                            <th style={{ padding: '10px 12px' }}>Equipamento</th>
+                            <th style={{ padding: '10px 12px' }}>Categoria</th>
+                            <th style={{ padding: '10px 12px' }}>Preço Unitário</th>
+                            <th style={{ padding: '10px 12px', textAlign: 'center' }}>Estoque em Banco</th>
+                            <th style={{ padding: '10px 12px', textAlign: 'right' }}>Ações Rápidas</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedAdminProducts.map((prod) => (
+                            <tr key={prod.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                  <img
+                                    src={prod.image || prod.imageUrl || '/products/monitor-uti.png'}
+                                    alt={prod.name}
+                                    style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, backgroundColor: '#f8fafc', padding: 3, border: '1px solid #e2e8f0', flexShrink: 0 }}
+                                  />
+                                  <div>
+                                    <div style={{ fontWeight: 700, lineHeight: 1.25, color: isDarkMode ? '#f8fafc' : '#0f172a' }}>{prod.name}</div>
+                                    <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: 2 }}>ID: {prod.id.slice(0, 10)}...</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td style={{ padding: '12px', color: '#64748b', fontSize: '0.85rem' }}>{prod.category}</td>
+                              <td style={{ padding: '12px', fontWeight: 800, color: '#f5a800', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{formatKwanzas(prod.price)}</td>
+                              <td style={{ padding: '12px', textAlign: 'center' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, backgroundColor: isDarkMode ? '#061124' : '#ffffff', padding: '4px 10px', borderRadius: 24, border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleQuickStock(prod.id, -1)}
+                                    disabled={prod.stock <= 0}
+                                    style={{ width: 26, height: 26, borderRadius: '50%', border: 'none', backgroundColor: '#fee2e2', color: '#dc2626', cursor: prod.stock > 0 ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.95rem', opacity: prod.stock <= 0 ? 0.35 : 1, transition: 'all 0.15s ease' }}
+                                    title="Diminuir 1 un. (Saída no banco)"
+                                  >
+                                    -
+                                  </button>
+                                  <span style={{ fontWeight: 900, fontSize: '0.88rem', minWidth: 26, textAlign: 'center', color: prod.stock === 0 ? '#dc2626' : isDarkMode ? '#f8fafc' : '#071326' }}>
+                                    {prod.stock}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleQuickStock(prod.id, 1)}
+                                    style={{ width: 26, height: 26, borderRadius: '50%', border: 'none', backgroundColor: '#ecfdf5', color: '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.95rem', transition: 'all 0.15s ease' }}
+                                    title="Aumentar 1 un. (Entrada no banco)"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </td>
+                              <td style={{ padding: '12px', textAlign: 'right' }}>
+                                <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setStockModalProduct(prod);
+                                      setStockMovementType('Entrada');
+                                      setStockDelta(5);
+                                    }}
+                                    style={{ padding: '6px 12px', borderRadius: 8, backgroundColor: '#071326', color: '#f5a800', border: 'none', cursor: 'pointer', fontSize: '0.74rem', fontWeight: 800, whiteSpace: 'nowrap', transition: 'transform 0.15s ease' }}
+                                  >
+                                    Ajustar Lote
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setDetailProduct(prod)}
+                                    style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #cbd5e1', backgroundColor: isDarkMode ? '#061124' : '#ffffff', color: isDarkMode ? '#cbd5e1' : '#0f172a', cursor: 'pointer', fontSize: '0.74rem', fontWeight: 700, whiteSpace: 'nowrap', transition: 'background-color 0.15s ease' }}
+                                  >
+                                    Ver Loja
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination Toolbar matching exact specification */}
+                    <div className="admin-pagination-bar">
+                      <div className="admin-pagination-left">
+                        <span className="admin-pagination-label">Linhas por página:</span>
+                        <select
+                          className="admin-pagination-select"
+                          value={adminRowsPerPage}
+                          onChange={(e) => setAdminRowsPerPage(Number(e.target.value))}
+                        >
+                          <option value={10}>10</option>
+                          <option value={15}>15</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                      </div>
+
+                      <div className="admin-pagination-range">
+                        {startAdminItem}–{endAdminItem} de {filteredAdminProducts.length}
+                      </div>
+
+                      <div className="admin-pagination-nav">
+                        <button
+                          type="button"
+                          className="admin-page-nav-btn"
+                          onClick={() => setAdminPage(1)}
+                          disabled={adminPage <= 1}
+                          title="Primeira página"
+                          aria-label="Primeira página"
+                        >
+                          <ChevronFirst size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-page-nav-btn"
+                          onClick={() => setAdminPage((prev) => Math.max(1, prev - 1))}
+                          disabled={adminPage <= 1}
+                          title="Página anterior"
+                          aria-label="Página anterior"
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-page-nav-btn"
+                          onClick={() => setAdminPage((prev) => Math.min(totalAdminPages, prev + 1))}
+                          disabled={adminPage >= totalAdminPages}
+                          title="Próxima página"
+                          aria-label="Próxima página"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-page-nav-btn"
+                          onClick={() => setAdminPage(totalAdminPages)}
+                          disabled={adminPage >= totalAdminPages}
+                          title="Última página"
+                          aria-label="Última página"
+                        >
+                          <ChevronLast size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. ABA: ESTOQUE & AUDITORIA (LEDGER EM BANCO D1) */}
+                {adminTab === 'stock' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    {/* Header bar */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: 20, borderRadius: 18, border: '1px solid #e2e8f0' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 900 }}>Auditoria de Estoque & Histórico de Movimentações</h3>
+                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Livro-razão (ledger) com persistência atômica de entradas, saídas e vendas registadas no banco.</p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (products.length > 0) {
+                            setStockModalProduct(products[0]);
+                            setStockMovementType('Entrada');
+                            setStockDelta(10);
+                          }
+                        }}
+                        style={{ padding: '8px 16px', borderRadius: 10, backgroundColor: '#0f766e', color: '#ffffff', border: 'none', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Plus size={15} />
+                        <span>+ Nova Movimentação Manual</span>
+                      </button>
+                    </div>
+
+                    {/* Stock Movements Ledger Table */}
+                    <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 20, overflowX: 'auto' }}>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 900, marginBottom: 14 }}>Últimos Registros de Movimentação ({stockMovements.length})</h4>
+                      {stockMovements.length === 0 ? (
+                        <p style={{ color: '#64748b', fontSize: '0.82rem', padding: '12px 0' }}>Nenhuma movimentação manual ou venda registada ainda no banco.</p>
+                      ) : (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                              <th style={{ padding: '8px 10px' }}>Data / Hora</th>
+                              <th style={{ padding: '8px 10px' }}>Equipamento</th>
+                              <th style={{ padding: '8px 10px' }}>Variação</th>
+                              <th style={{ padding: '8px 10px' }}>Motivo</th>
+                              <th style={{ padding: '8px 10px' }}>Operador</th>
+                              <th style={{ padding: '8px 10px' }}>Ref / Pedido</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {stockMovements.map((mov: any) => (
+                              <tr key={mov.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                <td style={{ padding: '10px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                  {mov.created ? new Date(mov.created).toLocaleString('pt-AO') : '—'}
+                                </td>
+                                <td style={{ padding: '10px', fontWeight: 700 }}>
+                                  {mov.name || (products.find((p) => p.id === mov.product_id)?.name || mov.product_id)}
+                                </td>
+                                <td style={{ padding: '10px' }}>
+                                  <span style={{ padding: '2px 8px', borderRadius: 10, fontWeight: 900, fontSize: '0.75rem', backgroundColor: mov.delta > 0 ? '#ecfdf5' : '#fee2e2', color: mov.delta > 0 ? '#059669' : '#dc2626' }}>
+                                    {mov.delta > 0 ? `+${mov.delta}` : mov.delta} un.
+                                  </span>
+                                </td>
+                                <td style={{ padding: '10px', color: isDarkMode ? '#cbd5e1' : '#334155' }}>{mov.reason}</td>
+                                <td style={{ padding: '10px', color: '#64748b', fontSize: '0.72rem' }}>{mov.actor}</td>
+                                <td style={{ padding: '10px', color: '#0284c7', fontSize: '0.72rem', fontWeight: 700 }}>
+                                  {mov.order_id ? `#${mov.order_id}` : 'Manual'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. ABA: ENCOMENDAS & GESTÃO DE FATURAS */}
+                {adminTab === 'orders' && (
+                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 20, border: '1px solid #e2e8f0', padding: 20 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 900 }}>Gestão de Encomendas & Proformas ({orders.length})</h3>
+                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Atualize o status dos pedidos em tempo real. O cancelamento repõe o estoque automaticamente no banco.</p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={fetchDbData}
+                        style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #cbd5e1', background: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <RefreshCw size={14} />
+                        <span>Atualizar Lista</span>
+                      </button>
+                    </div>
+
+                    {orders.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+                        <ClipboardList size={36} color="#cbd5e1" style={{ margin: '0 auto 10px auto' }} />
+                        <h4 style={{ fontWeight: 800 }}>Nenhuma encomenda registada</h4>
+                        <p style={{ fontSize: '0.8rem' }}>As encomendas emitidas na loja aparecerão listadas aqui para controle fiscal e logístico.</p>
+                      </div>
+                    ) : (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                              <th style={{ padding: '10px 12px' }}>Nº Encomenda</th>
+                              <th style={{ padding: '10px 12px' }}>Data / Hora</th>
+                              <th style={{ padding: '10px 12px' }}>Cliente / Clínica</th>
+                              <th style={{ padding: '10px 12px' }}>Destino</th>
+                              <th style={{ padding: '10px 12px' }}>Valor Total</th>
+                              <th style={{ padding: '10px 12px' }}>Status Atual</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {orders.map((ord: any) => (
+                              <tr key={ord.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                <td style={{ padding: '12px', fontWeight: 900, color: '#0284c7' }}>
+                                  #{ord.id}
+                                </td>
+                                <td style={{ padding: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                  {ord.created ? new Date(ord.created).toLocaleDateString('pt-AO') : ord.createdAt || 'Hoje'}
+                                </td>
+                                <td style={{ padding: '12px', fontWeight: 700 }}>
+                                  {ord.customer || ord.customerName}
+                                </td>
+                                <td style={{ padding: '12px', color: '#64748b', fontSize: '0.75rem' }}>
+                                  {ord.address || ord.deliveryAddress || 'Luanda'}
+                                </td>
+                                <td style={{ padding: '12px', fontWeight: 800, color: '#10b981' }}>
+                                  {formatKwanzas(ord.total)}
+                                </td>
+                                <td style={{ padding: '12px' }}>
+                                  <select
+                                    value={ord.status}
+                                    onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value as OrderStatus)}
+                                    style={{
+                                      padding: '4px 8px',
+                                      borderRadius: 8,
+                                      fontSize: '0.75rem',
+                                      fontWeight: 800,
+                                      border: '1px solid #cbd5e1',
+                                      backgroundColor: ord.status === 'Entregue' ? '#ecfdf5' : ord.status === 'Cancelado' ? '#fee2e2' : ord.status === 'Em Preparação' ? '#eff6ff' : '#fef3c7',
+                                      color: ord.status === 'Entregue' ? '#059669' : ord.status === 'Cancelado' ? '#dc2626' : ord.status === 'Em Preparação' ? '#1d4ed8' : '#d97706',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    <option value="Pendente">Pendente</option>
+                                    <option value="Aguardando Pagamento">Aguardando Pagamento</option>
+                                    <option value="Em Preparação">Em Preparação</option>
+                                    <option value="Enviado">Enviado</option>
+                                    <option value="Entregue">Entregue</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                  </select>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </main>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 9. SLIDING CART DRAWER (SACOLA LATERAL — MODELO BOTICÁRIO / RACHI)       */}
+      {/* ========================================================================= */}
+      {cartDrawerOpen && (
+        <div className="cart-backdrop" onClick={() => setCartDrawerOpen(false)}>
+          <div className="cart-drawer" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="cart-drawer-header">
+              <div className="cart-drawer-title-box">
+                <ShoppingBag size={20} color="#f5a800" />
+                <h3>Minha Sacola de Compras</h3>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: 20, backgroundColor: '#fef3c7', color: '#92400e' }}>
+                  {cartCount} {cartCount === 1 ? 'item' : 'itens'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="cart-close-btn"
+                onClick={() => setCartDrawerOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Items List */}
+            <div className="cart-items-scroll">
+              {cartLines.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+                  <ShoppingBag size={48} style={{ margin: '0 auto 12px auto' }} />
+                  <p style={{ fontWeight: 800, fontSize: '0.95rem', color: '#071326' }}>A sua sacola está vazia</p>
+                  <p style={{ fontSize: '0.78rem', marginTop: 4 }}>Adicione equipamentos hospitalares para emitir a sua fatura proforma.</p>
+                </div>
+              ) : (
+                cartLines.map(({ product, quantity, lineTotal }) => (
+                  <div key={product.id} className="cart-item-card">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="cart-item-thumb"
+                    />
+                    <div className="cart-item-info">
+                      <div className="cart-item-name">{product.name}</div>
+                      <div className="cart-item-price">{formatKwanzas(product.price)}</div>
+                      <div className="cart-qty-stepper">
+                        <button
+                          type="button"
+                          className="cart-qty-btn"
+                          onClick={() => updateQuantity(product.id, -1)}
+                        >
+                          -
+                        </button>
+                        <span className="cart-qty-val">{quantity}</span>
+                        <button
+                          type="button"
+                          className="cart-qty-btn"
+                          onClick={() => updateQuantity(product.id, 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="cart-item-delete-btn"
+                      onClick={() => updateQuantity(product.id, -quantity)}
+                      title="Remover item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer with totals and checkout */}
+            {cartLines.length > 0 && (
+              <div className="cart-drawer-footer">
+                {/* Totals Table */}
+                <div className="cart-totals-table">
+                  <div className="cart-total-line final" style={{ borderTop: 'none', paddingTop: 0 }}>
+                    <span>Total a Pagar:</span>
+                    <strong style={{ color: '#f5a800', fontSize: '1.15rem' }}>{formatKwanzas(cartSubtotal)}</strong>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-comprar"
+                  onClick={() => handleStartOrder()}
+                >
+                  <MessageCircle size={16} />
+                  <span>Fazer Pedido</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 10. PRODUCT DETAIL MODAL (QUICK VIEW)                                     */}
+      {/* ========================================================================= */}
+      {detailProduct && (
+        <div className="modal-overlay" onClick={() => setDetailProduct(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-icon-btn"
+              onClick={() => setDetailProduct(null)}
+            >
+              <X size={18} />
+            </button>
+
+            <div className="quick-view-grid">
+              <div className="quick-view-img-box">
+                <img
+                  src={detailProduct.image}
+                  alt={detailProduct.name}
+                  className="quick-view-img"
+                />
+              </div>
+
+              <div>
+                <span className="boti-cat-badge">{detailProduct.category}</span>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, marginTop: 6, lineHeight: 1.2 }}>
+                  {detailProduct.name}
+                </h3>
+
+                <div style={{ margin: '14px 0' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Preço Unitário:</span>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#f5a800' }}>
+                    {formatKwanzas(detailProduct.price)}
+                  </div>
+                </div>
+
+                <p style={{ fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
+                  {detailProduct.technicalSpecs || 'Equipamento hospitalar certificado com calibração técnica e garantia oficial em Luanda.'}
+                </p>
+
+                <ul className="quick-view-specs-list">
+                  <li className="quick-view-spec-item">
+                    <CheckCircle size={14} color="#10b981" />
+                    <span>Conformidade com Normas Sanitárias CE e ISO 13485</span>
+                  </li>
+                  <li className="quick-view-spec-item">
+                    <CheckCircle size={14} color="#10b981" />
+                    <span>Disponível para entrega imediata em Luanda</span>
+                  </li>
+                  <li className="quick-view-spec-item">
+                    <CheckCircle size={14} color="#10b981" />
+                    <span>Faturação comercial com NIF incluída</span>
+                  </li>
+                </ul>
+
+                <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                  <button
+                    type="button"
+                    className="btn-comprar"
+                    style={{ flex: 1 }}
+                    onClick={() => { addToCart(detailProduct); setDetailProduct(null); }}
+                  >
+                    <ShoppingBag size={16} />
+                    <span>Adicionar à Sacola</span>
+                  </button>
+                  <a
+                    href={`https://wa.me/${STORE_INFO.whatsappNumber}?text=Olá!%20Gostaria%20de%20detalhes%20do%20equipamento:%20${encodeURIComponent(detailProduct.name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hero-whatsapp-float"
+                    style={{ position: 'static' }}
+                  >
+                    <MessageCircle size={16} />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 11. CHECKOUT PROFORMA MODAL (REGRAS DE NEGÓCIO ANGOLA)                    */}
+      {/* ========================================================================= */}
+      {checkoutModalOpen && (
+        <div className="modal-overlay" onClick={() => setCheckoutModalOpen(false)}>
+          <div className="modal-card" style={{ maxWidth: 600 }} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-icon-btn"
+              onClick={() => setCheckoutModalOpen(false)}
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px auto' }}>
+                <FileText size={24} />
+              </div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Emissão de Factura Proforma</h3>
+              <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                Preencha os dados da sua instituição médica para formalização da encomenda.
+              </p>
+            </div>
+
+            <form onSubmit={handleCheckoutSubmit}>
+              <div className="form-field-group">
+                <label className="form-field-label">Nome da Empresa / Clínica / Hospital *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Clínica Girassol, Hospital Militar ou Particular"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="form-field-input"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="form-field-group">
+                  <label className="form-field-label">NIF da Empresa (Para Faturação AGT)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 5400000000"
+                    value={customerNif}
+                    onChange={(e) => setCustomerNif(e.target.value)}
+                    className="form-field-input"
+                  />
+                </div>
+                <div className="form-field-group">
+                  <label className="form-field-label">Telefone / WhatsApp *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+244 9xx xxx xxx"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="form-field-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-field-group">
+                <label className="form-field-label">E-mail para Envio da Factura *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="compras@suaclinica.ao"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="form-field-input"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="form-field-group">
+                  <label className="form-field-label">Província *</label>
+                  <select
+                    value={selectedProvinceId}
+                    onChange={(e) => setSelectedProvinceId(e.target.value)}
+                    className="form-field-select"
+                  >
+                    {ANGOLA_PROVINCES.map((prov) => (
+                      <option key={prov.id} value={prov.id}>
+                        {prov.name} ({prov.estimatedDays})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field-group">
+                  <label className="form-field-label">Meio de Pagamento *</label>
+                  <select
+                    value={selectedPaymentMethod}
+                    onChange={(e) => setSelectedPaymentMethod(e.target.value as PaymentMethodId)}
+                    className="form-field-select"
+                  >
+                    {PAYMENT_METHODS.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-field-group">
+                <label className="form-field-label">Endereço Completo de Entrega *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Bairro, Rua, Edifício / Pavilhão Clínico"
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  className="form-field-input"
+                />
+              </div>
+
+              <div style={{ padding: '12px 16px', backgroundColor: isDarkMode ? '#0d1e38' : '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                  <span>Total Proforma ({currentProvince.name}):</span>
+                  <strong style={{ color: '#f5a800', fontSize: '1.1rem' }}>{formatKwanzas(cartTotal)}</strong>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="btn-comprar"
+                disabled={submittingOrder}
+              >
+                <CheckCircle size={16} />
+                <span>{submittingOrder ? 'A processar no banco...' : 'Confirmar & Emitir Factura Proforma'}</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 12. CUSTOMER SUPPORT / CHAT ONLINE MODAL                                  */}
+      {/* ========================================================================= */}
+      {chatModalOpen && (
+        <div className="modal-overlay" onClick={() => setChatModalOpen(false)}>
+          <div className="modal-card" style={{ maxWidth: 480, height: 560, display: 'flex', flexDirection: 'column' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Headphones size={20} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800 }}>Apoio Clínico Laurinita</h4>
+                  <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>● Consultores Online</span>
+                </div>
+              </div>
+              <button type="button" className="cart-close-btn" onClick={() => setChatModalOpen(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {chatHistory.map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    alignSelf: item.sender === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '85%',
+                    padding: '10px 14px',
+                    borderRadius: 16,
+                    backgroundColor: item.sender === 'user' ? '#071326' : (isDarkMode ? '#0d1e38' : '#f1f5f9'),
+                    color: item.sender === 'user' ? '#f5a800' : (isDarkMode ? '#ffffff' : '#1e293b'),
+                    fontSize: '0.8rem',
+                    lineHeight: 1.4
+                  }}
+                >
+                  {item.text}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: 6, paddingTop: 10, borderTop: '1px solid #e2e8f0' }}>
+              <input
+                type="text"
+                placeholder="Escreva a sua dúvida..."
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                className="form-field-input"
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={sendChatMessage}
+                style={{ padding: '0 16px', backgroundColor: '#f5a800', border: 'none', borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Send size={16} color="#071326" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 13. LOGIN MODAL                                                           */}
+      {/* ========================================================================= */}
+      {showLoginModal && (
+        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
+          <div className="modal-card" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-icon-btn"
+              onClick={() => setShowLoginModal(false)}
+            >
+              <X size={18} />
+            </button>
+
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 900, marginBottom: 8, textAlign: 'center' }}>
+              Iniciar Sessão
+            </h3>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', textAlign: 'center', marginBottom: 20 }}>
+              Acesso exclusivo para colaboradores e clientes da Laurinita Distribuidora Ltda.
+            </p>
+
+            <form onSubmit={handleLogin}>
+              <div className="form-field-group">
+                <label className="form-field-label">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="form-field-input"
+                />
+              </div>
+              <div className="form-field-group">
+                <label className="form-field-label">Palavra-passe</label>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="form-field-input"
+                />
+              </div>
+              <button type="submit" className="btn-comprar" style={{ width: '100%', marginTop: 12 }}>
+                <Key size={15} />
+                <span>Entrar</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: MOVIMENTAÇÃO MANUAL DE ESTOQUE (ENTRADA / SAÍDA EM BANCO D1)        */}
+      {/* ========================================================================= */}
+      {stockModalProduct && (
+        <div className="modal-overlay" onClick={() => setStockModalProduct(null)}>
+          <div className="modal-card" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-icon-btn"
+              onClick={() => setStockModalProduct(null)}
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Activity size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900 }}>Ajuste de Estoque</h3>
+                <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Persistência atômica no banco de dados SQLite / D1</p>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: isDarkMode ? '#061124' : '#f8fafc', padding: 12, borderRadius: 12, marginBottom: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{stockModalProduct.name}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginTop: 4, color: '#64748b' }}>
+                <span>Categoria: {stockModalProduct.category}</span>
+                <span>Saldo Atual: <strong style={{ color: '#059669' }}>{stockModalProduct.stock} un.</strong></span>
+              </div>
+            </div>
+
+            <form onSubmit={submitManualMovement}>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 6 }}>
+                  Tipo de Movimentação:
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setStockMovementType('Entrada')}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 10,
+                      border: stockMovementType === 'Entrada' ? '2px solid #059669' : '1px solid #cbd5e1',
+                      backgroundColor: stockMovementType === 'Entrada' ? '#ecfdf5' : 'transparent',
+                      color: stockMovementType === 'Entrada' ? '#059669' : '#64748b',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    + Entrada (Recebimento)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStockMovementType('Saída')}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: 10,
+                      border: stockMovementType === 'Saída' ? '2px solid #dc2626' : '1px solid #cbd5e1',
+                      backgroundColor: stockMovementType === 'Saída' ? '#fee2e2' : 'transparent',
+                      color: stockMovementType === 'Saída' ? '#dc2626' : '#64748b',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    - Saída (Ajuste / Avaria)
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                  Quantidade de Unidades:
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={stockDelta}
+                  onChange={(e) => setStockDelta(Math.max(1, parseInt(e.target.value) || 1))}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.9rem', fontWeight: 800 }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                  Motivo da Movimentação:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Recebimento de Lote de Importação / Ajuste Físico"
+                  value={stockReason}
+                  onChange={(e) => setStockReason(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="submit"
+                  className="btn-comprar"
+                  style={{ flex: 1 }}
+                  disabled={isSubmittingAdmin}
+                >
+                  <Check size={16} />
+                  <span>{isSubmittingAdmin ? 'A gravar no banco...' : 'Confirmar Ajuste'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStockModalProduct(null)}
+                  style={{ padding: '10px 16px', borderRadius: 12, border: '1px solid #cbd5e1', background: 'none', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: CADASTRO DE NOVO EQUIPAMENTO MÉDICO (BANCO D1)                      */}
+      {/* ========================================================================= */}
+      {newProductModalOpen && (
+        <div className="modal-overlay" onClick={() => setNewProductModalOpen(false)}>
+          <div className="modal-card" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-icon-btn"
+              onClick={() => setNewProductModalOpen(false)}
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Package size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900 }}>Novo Equipamento Hospitalar</h3>
+                <p style={{ fontSize: '0.78rem', color: '#64748b' }}>Cadastrar produto diretamente no banco de dados</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleCreateProduct}>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                  Nome do Equipamento *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Eletrocardiógrafo 12 Canais Digital"
+                  value={newProdName}
+                  onChange={(e) => setNewProdName(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                    Categoria *
+                  </label>
+                  <select
+                    value={newProdCategory}
+                    onChange={(e) => setNewProdCategory(e.target.value)}
+                    style={{ width: '100%', padding: '9px 10px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                  >
+                    {adminCategories.filter((c) => c !== 'Todos').map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                    Preço (AOA) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1000"
+                    required
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(Number(e.target.value))}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: 800 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                    Estoque Inicial (un.)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newProdStock}
+                    onChange={(e) => setNewProdStock(Number(e.target.value))}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                    Estoque Mínimo Alerta
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newProdMin}
+                    onChange={(e) => setNewProdMin(Number(e.target.value))}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                  URL da Imagem (ou deixar padrão)
+                </label>
+                <input
+                  type="text"
+                  placeholder="/products/monitor-uti.png ou URL HTTPS"
+                  value={newProdImg}
+                  onChange={(e) => setNewProdImg(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
+                  Descrição / Especificações Técnicas
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Detalhes técnicos, certificações CE/ISO, voltagem, garantia..."
+                  value={newProdDesc}
+                  onChange={(e) => setNewProdDesc(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="submit"
+                  className="btn-comprar"
+                  style={{ flex: 1 }}
+                  disabled={isSubmittingAdmin}
+                >
+                  <Check size={16} />
+                  <span>{isSubmittingAdmin ? 'A cadastrar...' : 'Salvar Equipamento'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewProductModalOpen(false)}
+                  style={{ padding: '10px 16px', borderRadius: 12, border: '1px solid #cbd5e1', background: 'none', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 14. INSTITUTIONAL FOOTER (ESTILO RACHI.AO)                                */}
+      {/* ========================================================================= */}
+      <footer className="store-footer">
+        <div className="footer-container">
+          <div className="footer-col">
+            <h4 className="footer-brand-title">Laurinita Distribuidora Ltda</h4>
+            <p className="footer-brand-desc">
+              Distribuição oficial de equipamentos médicos, hospitalares e laboratoriais em Angola.
+            </p>
+          </div>
+
+          <div className="footer-col">
+            <h4>Apoio ao Cliente</h4>
+            <ul>
+              <li><a href={`https://wa.me/${STORE_INFO.whatsappNumber}`} target="_blank" rel="noopener noreferrer">Suporte Técnico WhatsApp</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setView('admin'); }}>Acesso Restrito Dashboard</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>Sede & Contactos</h4>
+            <ul>
+              <li style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                <MapPin size={16} color="#f5a800" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span>{STORE_INFO.address}, Luanda, Angola</span>
+              </li>
+              <li style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <Phone size={14} color="#f5a800" style={{ flexShrink: 0 }} />
+                <span>+244 923 333 804 / 912 000 000</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="footer-col">
+            <h4>Formas de Pagamento</h4>
+            <ul>
+              <li style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <CreditCard size={14} color="#f5a800" style={{ flexShrink: 0 }} />
+                <span>Multicaixa Express / TPA</span>
+              </li>
+              <li style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <Building2 size={14} color="#f5a800" style={{ flexShrink: 0 }} />
+                <span>Transferência Bancária (IBAN)</span>
+              </li>
+              <li style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <FileText size={14} color="#f5a800" style={{ flexShrink: 0 }} />
+                <span>Facturação a 30 dias (Empresas)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer-bottom-strip">
+          <div>
+            © 2026 Laurinita Distribuidora Ltda. Todos os direitos reservados.
+          </div>
+          <div style={{ display: 'flex', gap: 14 }}>
+            <span>Luanda · Huambo</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* ========================================================================= */}
+      {/* MODAL: DADOS DE CONTATO & WHATSAPP (PRINT ADAPTADO AO DESIGN EXISTENTE)    */}
+      {/* ========================================================================= */}
+      {orderContactModalOpen && (
+        <div className="modal-overlay" onClick={() => setOrderContactModalOpen(false)}>
+          <div className="contact-order-modal-card" onClick={(e) => e.stopPropagation()}>
+            {orderStep === 'contact' ? (
+              /* ================== STEP 1: DADOS DE CONTATO ================== */
+              <div>
+                {/* Header with Back Arrow */}
+                <div className="contact-modal-header">
+                  <button
+                    type="button"
+                    className="contact-modal-back-btn"
+                    onClick={() => setOrderContactModalOpen(false)}
+                    title="Voltar"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <h3 className="contact-modal-title">Dados de contato</h3>
+                </div>
+
+                <p className="contact-modal-subtitle">
+                  Selecione como deseja receber seu pedido.
+                </p>
+
+                {/* Delivery Options */}
+                <div className="delivery-options-grid">
+                  <div
+                    className={`delivery-option-card ${deliveryMethod === 'delivery' ? 'active' : ''}`}
+                    onClick={() => setDeliveryMethod('delivery')}
+                  >
+                    <div className="delivery-option-left">
+                      <Truck size={22} className="delivery-option-icon" />
+                      <span className="delivery-option-label">Entrega em domicílio</span>
+                    </div>
+                    <div className="delivery-radio-indicator">
+                      {deliveryMethod === 'delivery' && <span className="delivery-radio-dot" />}
+                    </div>
+                  </div>
+
+                  <div
+                    className={`delivery-option-card ${deliveryMethod === 'pickup' ? 'active' : ''}`}
+                    onClick={() => setDeliveryMethod('pickup')}
+                  >
+                    <div className="delivery-option-left">
+                      <ShoppingBag size={22} className="delivery-option-icon" />
+                      <span className="delivery-option-label">Para levantar/remover</span>
+                    </div>
+                    <div className="delivery-radio-indicator">
+                      {deliveryMethod === 'pickup' && <span className="delivery-radio-dot" />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Form */}
+                <form onSubmit={handleProceedToWhatsApp} className="contact-order-form">
+                  <div className="contact-field-group">
+                    <label className="contact-field-label">
+                      Nome <span className="req-star">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Digite seu nome"
+                      value={orderCustomerName}
+                      onChange={(e) => setOrderCustomerName(e.target.value)}
+                      className="contact-field-input"
+                    />
+                  </div>
+
+                  <div className="contact-field-group">
+                    <label className="contact-field-label">
+                      Celular <span className="req-star">*</span>
+                    </label>
+                    <div className="angola-phone-input-group">
+                      <div className="angola-flag-box">
+                        <span className="angola-flag-icon" role="img" aria-label="Angola">🇦🇴</span>
+                        <ChevronDown size={14} color="#64748b" />
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="Digite o seu telemóvel"
+                        value={orderCustomerPhone}
+                        onChange={(e) => setOrderCustomerPhone(e.target.value)}
+                        className="angola-phone-input"
+                      />
+                    </div>
+                  </div>
+
+                  {deliveryMethod === 'delivery' && (
+                    <div className="contact-field-group">
+                      <label className="contact-field-label">
+                        Endereço <span className="req-star">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Digite seu endereço"
+                        value={orderDeliveryAddress}
+                        onChange={(e) => setOrderDeliveryAddress(e.target.value)}
+                        className="contact-field-input"
+                      />
+                    </div>
+                  )}
+
+                  <div className="contact-field-group">
+                    <label className="contact-field-label">
+                      Observações da ordem
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="Instruções de entrega, referências da clínica..."
+                      value={orderRemarks}
+                      onChange={(e) => setOrderRemarks(e.target.value)}
+                      className="contact-field-textarea"
+                    />
+                  </div>
+
+                  {/* Bottom Action Bar */}
+                  <div className="contact-order-bottom-bar">
+                    <button type="submit" className="btn-order-action">
+                      <div className="btn-order-action-left">
+                        <span className="order-qty-badge">{activeOrderCount || 1}</span>
+                        <span className="order-btn-text">Fazer pedido</span>
+                      </div>
+                      <div className="btn-order-action-right">
+                        <span className="order-btn-total">{formatKwanzas(activeOrderTotal)}</span>
+                        <ChevronRight size={18} />
+                      </div>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* ================== STEP 2: PEDIDO WHATSAPP ================== */
+              <div>
+                {/* Header with Back Arrow */}
+                <div className="contact-modal-header">
+                  <button
+                    type="button"
+                    className="contact-modal-back-btn"
+                    onClick={() => setOrderStep('contact')}
+                    title="Voltar aos dados de contato"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <h3 className="contact-modal-title">Faça seu pedido pelo WhatsApp</h3>
+                </div>
+
+                {/* Direct WhatsApp Web Action Card */}
+                <a
+                  href={whatsAppOrderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whatsapp-web-action-card"
+                >
+                  <div className="whatsapp-action-left">
+                    <div className="whatsapp-icon-circle">
+                      <MessageCircle size={22} color="#25D366" fill="#25D366" />
+                    </div>
+                    <span className="whatsapp-action-title">Acesse o WhatsApp Web.</span>
+                  </div>
+                  <ChevronRight size={18} color="#64748b" />
+                </a>
+
+                {/* QR Code Section */}
+                <div className="whatsapp-qr-container">
+                  <p className="whatsapp-qr-instruction">
+                    Escaneie o código com seu celular.
+                  </p>
+
+                  <div className="whatsapp-qr-box">
+                    {qrCodeUrl ? (
+                      <img
+                        src={qrCodeUrl}
+                        alt="QR Code WhatsApp"
+                        className="whatsapp-qr-image"
+                      />
+                    ) : (
+                      <div style={{ height: 250, width: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <RefreshCw size={24} className="spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="whatsapp-qr-subtext">
+                    Ao ler o código QR com a câmera do celular, o WhatsApp abrirá diretamente com todos os produtos do seu pedido prontos para envio.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
