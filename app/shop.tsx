@@ -37,6 +37,7 @@ import {
   RefreshCw,
   Edit,
   Eye,
+  EyeOff,
   Settings,
   HelpCircle,
   CheckCircle2,
@@ -175,6 +176,8 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -182,6 +185,8 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   useEffect(() => {
     if (view === 'login' && currentUser) {
       navigateTo('admin');
+    } else if (view === 'admin' && !currentUser) {
+      navigateTo('login');
     }
   }, [view, currentUser]);
 
@@ -1161,6 +1166,165 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       category: 'Diagnóstico & Imagiologia'
     }
   ];
+
+  if (view === 'login') {
+    return (
+      <div className="klasse-auth-viewport">
+        {notice && (
+          <div className="toast-notification toast-success" role="status" style={{ zIndex: 9999 }}>
+            <CheckCircle2 size={18} className="toast-icon toast-icon-success" />
+            <span className="toast-text">{notice}</span>
+            <button onClick={() => setNotice('')} className="toast-close-btn" aria-label="Fechar">
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="toast-notification toast-error" role="alert" style={{ zIndex: 9999 }}>
+            <AlertCircle size={18} className="toast-icon toast-icon-error" />
+            <span className="toast-text">{error}</span>
+            <button onClick={() => setError('')} className="toast-close-btn" aria-label="Fechar">
+              <X size={15} />
+            </button>
+          </div>
+        )}
+
+        {/* Left background image */}
+        <div aria-hidden="true" className="klasse-auth-bg-image" />
+
+        {/* Left deep green gradient overlay */}
+        <div aria-hidden="true" className="klasse-auth-bg-gradient" />
+
+        {/* Desktop right white container panel */}
+        <div aria-hidden="true" className="klasse-auth-desktop-white-panel" />
+
+        {/* Main Content */}
+        <main className="klasse-auth-main">
+          {/* Top-right language badge */}
+          <div className="klasse-auth-lang-badge">
+            <span style={{ display: 'grid', placeItems: 'center', width: 28, height: 20, borderRadius: 3, backgroundColor: '#169b62', fontSize: '0.75rem', lineHeight: 1 }}>
+              🇦🇴
+            </span>
+            <span>Português</span>
+            <ChevronDown size={14} style={{ opacity: 0.6 }} />
+          </div>
+
+          <section className="klasse-auth-card-section">
+            <div>
+              {/* Brand Logo Header */}
+              <div className="klasse-auth-logo-header">
+                <img
+                  src="/laurinita-logo-mark.svg"
+                  alt="Laurinita"
+                  width={42}
+                  height={42}
+                  style={{ width: 42, height: 42, objectFit: 'contain' }}
+                />
+                <span>
+                  <strong className="klasse-auth-brand-name">LAURINITA</strong>
+                  <small className="klasse-auth-brand-sub">DISTRIBUIÇÃO HOSPITALAR &amp; MÉDICA</small>
+                </span>
+              </div>
+
+              {/* Title & Subtitle */}
+              <h1 className="klasse-auth-title">Entrar no portal</h1>
+              <p className="klasse-auth-subtitle">
+                Acesso exclusivo para gestão corporativa e hospitalar
+              </p>
+
+              {loginError && (
+                <div className="klasse-auth-error-alert" role="alert">
+                  <AlertCircle size={16} />
+                  <span>{loginError}</span>
+                </div>
+              )}
+
+              {/* Authentication Form */}
+              <form onSubmit={handleLogin} style={{ width: '100%' }}>
+                <div className="klasse-auth-field">
+                  <label className="klasse-auth-label">Identificador de acesso</label>
+                  <input
+                    type="text"
+                    autoComplete="username"
+                    required
+                    placeholder="Email ou utilizador corporativo"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className="klasse-auth-input"
+                  />
+                  <p className="klasse-auth-input-helper">
+                    Colaboradores autorizados com credenciais ativas.
+                  </p>
+                </div>
+
+                <div className="klasse-auth-field">
+                  <label className="klasse-auth-label">Senha</label>
+                  <div className="klasse-auth-pw-wrap">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      required
+                      placeholder="••••••••"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="klasse-auth-input klasse-auth-pw-input"
+                    />
+                    <button
+                      type="button"
+                      className="klasse-auth-pw-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="klasse-auth-remember-row">
+                  <label className="klasse-auth-remember-label">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="klasse-auth-checkbox"
+                    />
+                    <span>Lembrar-me</span>
+                  </label>
+                  <a
+                    href={`https://wa.me/${STORE_INFO.whatsappNumber}?text=${encodeURIComponent('Olá, preciso de suporte para recuperar o acesso ao portal da Laurinita Distribuidora.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="klasse-auth-recovery-link"
+                  >
+                    Recuperar acesso
+                  </a>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="klasse-auth-submit-btn"
+                >
+                  <Key size={16} />
+                  <span>{loginLoading ? 'A autenticar...' : 'Entrar no portal'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigateTo('shop')}
+                  className="klasse-auth-back-btn"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Voltar ao Catálogo da Loja</span>
+                </button>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={`laurinita-app ${isDarkMode ? 'dark' : ''}`}>
