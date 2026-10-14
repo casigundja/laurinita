@@ -62,7 +62,10 @@ import {
   Send,
   ArrowLeft,
   ChevronFirst,
-  ChevronLast
+  ChevronLast,
+  Upload,
+  Link2,
+  Image as ImageIcon
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { catalog, CatalogProduct, STORE_INFO, formatKwanzas } from '../lib/catalog';
@@ -225,6 +228,10 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   const [newProdMin, setNewProdMin] = useState<number>(1);
   const [newProdDesc, setNewProdDesc] = useState('');
   const [newProdImg, setNewProdImg] = useState('');
+  const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
+  const [localFileName, setLocalFileName] = useState('');
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmittingAdmin, setIsSubmittingAdmin] = useState(false);
 
   // Cart & Order Form State
@@ -895,6 +902,51 @@ Aguardo confirmação e dados para pagamento / fatura!`;
     }
   }
 
+  function handleImageFileSelect(file: File) {
+    if (!file || !file.type.startsWith('image/')) {
+      setError('Por favor selecione um arquivo de imagem válido (PNG, JPG, WEBP).');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            setNewProdImg(compressedDataUrl);
+            setLocalFileName(file.name);
+          } else {
+            setNewProdImg(event.target?.result as string);
+            setLocalFileName(file.name);
+          }
+        } catch {
+          setNewProdImg(event.target?.result as string);
+          setLocalFileName(file.name);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function handleCreateProduct(e: React.FormEvent) {
     e.preventDefault();
     if (!currentUser || !['admin', 'manager'].includes(currentUser.role)) {
@@ -944,6 +996,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       setNewProdPrice(150000);
       setNewProdStock(5);
       setNewProdImg('');
+      setLocalFileName('');
       fetchDbData();
     } catch (err: any) {
       setError(err.message || 'Erro ao cadastrar equipamento.');
@@ -3202,17 +3255,202 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                 </div>
               </div>
 
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
-                  URL da Imagem (ou deixar padrão)
-                </label>
-                <input
-                  type="text"
-                  placeholder="/products/monitor-uti.png ou URL HTTPS"
-                  value={newProdImg}
-                  onChange={(e) => setNewProdImg(e.target.value)}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
-                />
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: isDarkMode ? '#cbd5e1' : '#334155' }}>
+                    Imagem do Equipamento
+                  </label>
+                  {/* Mode switch pills */}
+                  <div style={{ display: 'inline-flex', padding: 2, borderRadius: 8, backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9', border: '1px solid #e2e8f0' }}>
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('upload')}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: 6,
+                        border: 'none',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        backgroundColor: imageInputMode === 'upload' ? '#0f766e' : 'transparent',
+                        color: imageInputMode === 'upload' ? '#ffffff' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <Upload size={12} />
+                      <span>Upload Local</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageInputMode('url')}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: 6,
+                        border: 'none',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        backgroundColor: imageInputMode === 'url' ? '#0f766e' : 'transparent',
+                        color: imageInputMode === 'url' ? '#ffffff' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <Link2 size={12} />
+                      <span>Link / URL</span>
+                    </button>
+                  </div>
+                </div>
+
+                {imageInputMode === 'upload' ? (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageFileSelect(file);
+                      }}
+                    />
+
+                    {!newProdImg ? (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDraggingFile(true);
+                        }}
+                        onDragLeave={() => setIsDraggingFile(false)}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setIsDraggingFile(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) handleImageFileSelect(file);
+                        }}
+                        style={{
+                          border: isDraggingFile ? '2px dashed #0f766e' : '2px dashed #cbd5e1',
+                          backgroundColor: isDraggingFile ? 'rgba(15,118,110,0.06)' : (isDarkMode ? '#1e293b' : '#f8fafc'),
+                          borderRadius: 12,
+                          padding: '18px 14px',
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: 6
+                        }}
+                      >
+                        <div style={{ width: 38, height: 38, borderRadius: '50%', backgroundColor: isDarkMode ? '#0f172a' : '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Upload size={18} />
+                        </div>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: isDarkMode ? '#f8fafc' : '#1e293b' }}>
+                          Clique para carregar ou arraste do seu computador
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                          PNG, JPG, WEBP (otimização e compressão automática)
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: 10,
+                          borderRadius: 12,
+                          border: '1px solid #10b981',
+                          backgroundColor: isDarkMode ? 'rgba(16,185,129,0.08)' : '#f0fdf4'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                          <img
+                            src={newProdImg}
+                            alt="Prévia"
+                            style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'contain', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', flexShrink: 0 }}
+                          />
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {localFileName || 'Imagem Local Carregada'}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+                              <CheckCircle2 size={12} />
+                              <span>Pronta para o catálogo</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            style={{
+                              padding: '5px 10px',
+                              borderRadius: 8,
+                              border: '1px solid #cbd5e1',
+                              backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Trocar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewProdImg('');
+                              setLocalFileName('');
+                            }}
+                            style={{
+                              padding: '5px 8px',
+                              borderRadius: 8,
+                              border: 'none',
+                              backgroundColor: '#fee2e2',
+                              color: '#dc2626',
+                              fontSize: '0.7rem',
+                              cursor: 'pointer'
+                            }}
+                            title="Remover imagem"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="/products/monitor-uti.png ou URL HTTPS"
+                      value={newProdImg}
+                      onChange={(e) => {
+                        setNewProdImg(e.target.value);
+                        setLocalFileName('');
+                      }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                    />
+                    {newProdImg && (
+                      <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <img
+                          src={newProdImg}
+                          alt="Prévia URL"
+                          onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'contain', backgroundColor: '#ffffff', border: '1px solid #cbd5e1' }}
+                        />
+                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Prévia do link informado</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: 18 }}>
