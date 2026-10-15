@@ -117,6 +117,14 @@ interface OrderRecord {
   notes?: string;
 }
 
+function normalizeSearchText(text: string): string {
+  return (text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
 export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 'admin' | 'login' } = {}) {
   // Navigation & view states
   const [view, setView] = useState<'shop' | 'admin' | 'login'>(initialView);
@@ -437,21 +445,32 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
 
   // Categories list
   const categories = useMemo(() => {
-    const list = Array.from(new Set(catalog.map((p) => p.category)));
-    return ['Todos', ...list];
-  }, []);
+    const source = products.length > 0 ? products : catalog;
+    const set = new Set<string>();
+    source.forEach((p) => {
+      if (p.category && p.category.trim()) {
+        set.add(p.category.trim());
+      }
+    });
+    return ['Todos', ...Array.from(set)];
+  }, [products]);
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
+    const q = normalizeSearchText(searchQuery);
+    const selectedCat = normalizeSearchText(selectedCategory);
+
     let result = products.filter((p) => {
-      const matchesCategory = selectedCategory === 'Todos' || p.category === selectedCategory;
+      const pCat = normalizeSearchText(p.category);
+      const matchesCategory = selectedCat === 'todos' || pCat === selectedCat;
       const matchesSearch =
-        !searchQuery.trim() ||
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (p.technicalSpecs && p.technicalSpecs.toLowerCase().includes(searchQuery.toLowerCase()));
-      const matchesStock = !onlyAvailable || p.isAvailable;
-      const matchesDiscount = !onlyDiscount || (p.discount && p.discount > 0);
+        !q ||
+        normalizeSearchText(p.name).includes(q) ||
+        pCat.includes(q) ||
+        normalizeSearchText(p.description).includes(q) ||
+        (p.technicalSpecs && normalizeSearchText(p.technicalSpecs).includes(q));
+      const matchesStock = !onlyAvailable || (p.isAvailable && p.stock > 0);
+      const matchesDiscount = !onlyDiscount || Boolean(p.discount && p.discount > 0);
       return matchesCategory && matchesSearch && matchesStock && matchesDiscount;
     });
 
@@ -492,18 +511,27 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   // Admin Dashboard Computed Values
   const adminCategories = useMemo(() => {
     const set = new Set<string>();
-    products.forEach((p) => { if (p.category) set.add(p.category); });
+    products.forEach((p) => {
+      if (p.category && p.category.trim()) {
+        set.add(p.category.trim());
+      }
+    });
     return ['Todos', ...Array.from(set)];
   }, [products]);
 
   const filteredAdminProducts = useMemo(() => {
+    const q = normalizeSearchText(adminSearch);
+    const cat = normalizeSearchText(adminCategory);
+
     return products.filter((p) => {
-      const matchCat = adminCategory === 'Todos' || p.category === adminCategory;
+      const pCat = normalizeSearchText(p.category);
+      const matchCat = cat === 'todos' || pCat === cat;
       const matchSearch =
-        !adminSearch.trim() ||
-        p.name.toLowerCase().includes(adminSearch.toLowerCase()) ||
-        p.category.toLowerCase().includes(adminSearch.toLowerCase()) ||
-        p.id.toLowerCase().includes(adminSearch.toLowerCase());
+        !q ||
+        normalizeSearchText(p.name).includes(q) ||
+        pCat.includes(q) ||
+        normalizeSearchText(p.id).includes(q) ||
+        normalizeSearchText(p.description).includes(q);
       return matchCat && matchSearch;
     });
   }, [products, adminSearch, adminCategory]);
@@ -1719,6 +1747,47 @@ Aguardo confirmação e dados para pagamento / fatura!`;
               </div>
             </div>
 
+            {/* Quick Filter Chips (Todos, Em Estoque Imediato, Com Desconto, Limpar) */}
+            <div className="vitrine-filter-chips-row">
+              <button
+                type="button"
+                className={`filter-chip ${selectedCategory === 'Todos' && !onlyAvailable && !onlyDiscount && !searchQuery ? 'active' : ''}`}
+                onClick={() => { setSelectedCategory('Todos'); setSearchQuery(''); setOnlyAvailable(false); setOnlyDiscount(false); }}
+              >
+                <span>⚡ Todos ({products.length})</span>
+              </button>
+
+              <button
+                type="button"
+                className={`filter-chip ${onlyAvailable ? 'active' : ''}`}
+                onClick={() => setOnlyAvailable(!onlyAvailable)}
+              >
+                <Check size={13} />
+                <span>Em Estoque Imediato</span>
+              </button>
+
+              <button
+                type="button"
+                className={`filter-chip ${onlyDiscount ? 'active' : ''}`}
+                onClick={() => setOnlyDiscount(!onlyDiscount)}
+              >
+                <BadgePercent size={13} />
+                <span>Com Desconto</span>
+              </button>
+
+              {(selectedCategory !== 'Todos' || searchQuery || onlyAvailable || onlyDiscount) && (
+                <button
+                  type="button"
+                  className="filter-chip-clear"
+                  onClick={() => { setSelectedCategory('Todos'); setSearchQuery(''); setOnlyAvailable(false); setOnlyDiscount(false); }}
+                  title="Limpar todos os filtros ativos"
+                >
+                  <X size={12} />
+                  <span>Limpar Filtros</span>
+                </button>
+              )}
+            </div>
+
             {/* Product Cards Grid */}
             {filteredProducts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#ffffff', borderRadius: 24, border: '1px solid #e2e8f0' }}>
@@ -2063,9 +2132,19 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                   </button>
                 </div>
 
-                {/* Dashboard Metrics - 4 Responsive Cards */}
+                {/* Dashboard Metrics - 4 Responsive Interactive Filter Cards */}
                 <div className="admin-metrics-grid">
-                  <div className="admin-metric-card">
+                  <div
+                    className={`admin-metric-card clickable ${adminTab === 'products' ? 'active-metric' : ''}`}
+                    onClick={() => {
+                      setAdminTab('products');
+                      setAdminCategory('Todos');
+                      setAdminSearch('');
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    title="Clique para filtrar e ver todos os equipamentos"
+                  >
                     <div className="admin-metric-card-top">
                       <span className="admin-metric-label">
                         Equipamentos
@@ -2076,11 +2155,17 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     </div>
                     <h3 className="admin-metric-num" style={{ color: '#f5a800' }}>{products.length}</h3>
                     <span className="admin-metric-desc" style={{ color: '#10b981' }}>
-                      Persistidos no SQLite
+                      Filtrar no banco →
                     </span>
                   </div>
 
-                  <div className="admin-metric-card">
+                  <div
+                    className={`admin-metric-card clickable ${adminTab === 'stock' ? 'active-metric' : ''}`}
+                    onClick={() => setAdminTab('stock')}
+                    role="button"
+                    tabIndex={0}
+                    title="Clique para ver auditoria e saldo de estoque"
+                  >
                     <div className="admin-metric-card-top">
                       <span className="admin-metric-label">
                         Total em Estoque
@@ -2091,11 +2176,17 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     </div>
                     <h3 className="admin-metric-num" style={{ color: '#059669' }}>{totalInventoryUnits} un.</h3>
                     <span className="admin-metric-desc">
-                      Físicos disponíveis
+                      Auditoria de estoque →
                     </span>
                   </div>
 
-                  <div className="admin-metric-card">
+                  <div
+                    className={`admin-metric-card clickable ${adminTab === 'orders' ? 'active-metric' : ''}`}
+                    onClick={() => setAdminTab('orders')}
+                    role="button"
+                    tabIndex={0}
+                    title="Clique para filtrar encomendas"
+                  >
                     <div className="admin-metric-card-top">
                       <span className="admin-metric-label">
                         Encomendas
@@ -2106,11 +2197,17 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     </div>
                     <h3 className="admin-metric-num" style={{ color: '#0284c7' }}>{orders.length}</h3>
                     <span className="admin-metric-desc">
-                      Proformas emitidas
+                      Ver encomendas →
                     </span>
                   </div>
 
-                  <div className="admin-metric-card">
+                  <div
+                    className={`admin-metric-card clickable ${adminTab === 'orders' ? 'active-metric' : ''}`}
+                    onClick={() => setAdminTab('orders')}
+                    role="button"
+                    tabIndex={0}
+                    title="Clique para ver relatórios financeiros"
+                  >
                     <div className="admin-metric-card-top">
                       <span className="admin-metric-label">
                         Volume Total
@@ -2123,7 +2220,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                       {formatKwanzas(orders.reduce((acc, o) => acc + o.total, 0))}
                     </h3>
                     <span className="admin-metric-desc">
-                      Total faturado
+                      Relatório comercial →
                     </span>
                   </div>
                 </div>

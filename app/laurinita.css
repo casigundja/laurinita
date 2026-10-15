@@ -1761,12 +1761,39 @@ html.dark .admin-dashboard-title {
   border-radius: 18px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.admin-metric-card.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-metric-card.clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 102, 204, 0.12);
+  border-color: #93c5fd;
+}
+
+.admin-metric-card.active-metric {
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+  background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
 }
 
 html.dark .admin-metric-card {
   background-color: #0d1e38;
   border-color: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .admin-metric-card.clickable:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+  border-color: #38bdf8;
+}
+
+html.dark .admin-metric-card.active-metric {
+  border-color: #38bdf8;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.1) 0%, #0d1e38 100%);
 }
 
 .admin-metric-card-top {
@@ -2089,6 +2116,91 @@ html.dark .vitrine-select-sort, body.dark .vitrine-select-sort {
   background-color: #0c1a33;
   border-color: rgba(255, 255, 255, 0.12);
   color: #ffffff;
+}
+
+/* Quick Filter Chips */
+.vitrine-filter-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.filter-chip:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.filter-chip.active {
+  background-color: var(--color-primary-blue, #0066cc);
+  color: #ffffff;
+  border-color: var(--color-primary-blue, #0066cc);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+}
+
+.filter-chip-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-chip-clear:hover {
+  background-color: #fecaca;
+  color: #b91c1c;
+}
+
+html.dark .filter-chip {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .filter-chip:hover {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark .filter-chip.active {
+  background-color: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+
+html.dark .filter-chip-clear {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+html.dark .filter-chip-clear:hover {
+  background-color: rgba(239, 68, 68, 0.28);
 }
 
 /* Product Grid */
