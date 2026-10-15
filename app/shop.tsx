@@ -1424,9 +1424,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                   <div className="user-btn-name">
                     {currentUser ? `Olá, ${currentUser.name.split(' ')[0]}` : 'Entrar no Sistema'}
                   </div>
-                  <div className="user-btn-role">
-                    Painel Geral
-                  </div>
                 </div>
                 <ChevronDown size={12} color="#94a3b8" />
               </button>

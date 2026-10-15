@@ -38,7 +38,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canViewCustomers: true,
     canViewFinancialReports: true,
     canManageUsers: true,
-    badgeLabel: 'Painel Geral',
+    badgeLabel: '',
     color: '#0f766e',
   },
   manager: {
