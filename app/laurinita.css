@@ -1633,6 +1633,53 @@ html.dark .hero-showcase-card, body.dark .hero-showcase-card {
     gap: 5px !important;
   }
 
+  /* Admin Mobile Cards & Responsive Overrides */
+  .admin-mobile-only {
+    display: flex !important;
+  }
+
+  .admin-desktop-only {
+    display: none !important;
+  }
+
+  .admin-alert-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .admin-pagination-bar {
+    padding: 10px 8px !important;
+    gap: 10px !important;
+    justify-content: space-between !important;
+  }
+
+  .admin-pagination-left {
+    gap: 4px !important;
+    font-size: 0.74rem !important;
+  }
+
+  .admin-pagination-label {
+    font-size: 0.74rem !important;
+  }
+
+  .admin-pagination-select {
+    font-size: 0.76rem !important;
+  }
+
+  .admin-pagination-range {
+    font-size: 0.74rem !important;
+  }
+
+  .admin-pagination-nav {
+    gap: 8px !important;
+  }
+
+  .admin-page-nav-btn {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
   /* 4. INSTITUTIONAL FOOTER COMPACT MOBILE LAYOUT */
   .store-footer {
     padding: 22px 14px 18px 14px !important;
@@ -4601,6 +4648,295 @@ body.dark .toast-close-btn:hover {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* ========================================================================= */
+/* ADMIN RESPONSIVE TABLES & MOBILE CARDS                                    */
+/* ========================================================================= */
+.admin-mobile-only {
+  display: none;
+}
+
+.admin-desktop-only {
+  display: block;
+}
+
+.admin-table-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.admin-alert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-alert-header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-alert-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-alert-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #dc2626;
+  margin: 0;
+}
+
+.admin-alert-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+.admin-alert-link-btn {
+  background: none;
+  border: none;
+  color: #0284c7;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.admin-stock-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.admin-stock-pill.out {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.admin-stock-pill.low {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.admin-quick-add-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  font-weight: 800;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-quick-add-btn:hover {
+  background-color: #d1fae5;
+}
+
+.admin-quick-add-btn.compact {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  border-radius: 6px;
+}
+
+.admin-repor-lote-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background-color: #071326;
+  color: #f5a800;
+  border: none;
+  font-weight: 800;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-repor-lote-btn:hover {
+  background-color: #0d1e38;
+}
+
+.admin-repor-lote-btn.compact {
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  border-radius: 6px;
+}
+
+/* Mobile Low Stock Cards */
+.admin-lowstock-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-lowstock-card {
+  background-color: #f8fafc;
+  border: 1px solid #fee2e2;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html.dark .admin-lowstock-card {
+  background-color: #061124;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.admin-lowstock-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-lowstock-name {
+  font-weight: 800;
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: #071326;
+}
+
+html.dark .admin-lowstock-name {
+  color: #f8fafc;
+}
+
+.admin-lowstock-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.admin-lowstock-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-lowstock-card-actions button {
+  flex: 1;
+}
+
+/* Mobile Products Card List */
+.admin-products-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-product-mobile-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+html.dark .admin-product-mobile-card {
+  background-color: #061124;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-product-mobile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-product-mobile-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  padding: 3px;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.admin-product-mobile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-product-mobile-title {
+  font-weight: 800;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  color: #071326;
+  white-space: normal;
+}
+
+html.dark .admin-product-mobile-title {
+  color: #f8fafc;
+}
+
+.admin-product-mobile-price {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: #f5a800;
+  margin-top: 2px;
+}
+
+.admin-product-mobile-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+html.dark .admin-product-mobile-row2 {
+  border-top-color: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.admin-product-mobile-cat {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.admin-product-mobile-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-product-mobile-actions button {
+  flex: 1;
 }
 
 

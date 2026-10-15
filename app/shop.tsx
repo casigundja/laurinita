@@ -2273,36 +2273,76 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     {/* Low Stock Alert Section */}
                     {lowStockProducts.length > 0 && (
                       <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #fecaca', padding: 20, boxShadow: '0 4px 12px rgba(239, 68, 68, 0.05)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="admin-alert-header">
+                          <div className="admin-alert-header-info">
+                            <div className="admin-alert-icon-box">
                               <AlertTriangle size={18} />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#dc2626' }}>
+                              <h4 className="admin-alert-title">
                                 Alerta de Estoque Crítico ({lowStockProducts.length} itens)
                               </h4>
-                              <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Equipamentos com estoque igual ou abaixo da reserva mínima.</p>
+                              <p className="admin-alert-subtitle">Equipamentos com estoque igual ou abaixo da reserva mínima.</p>
                             </div>
                           </div>
                           <button
                             type="button"
                             onClick={() => setAdminTab('products')}
-                            style={{ background: 'none', border: 'none', color: '#0284c7', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                            className="admin-alert-link-btn"
                           >
                             Ver todos no catálogo →
                           </button>
                         </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                        {/* Mobile Optimized Cards (< 640px) */}
+                        <div className="admin-lowstock-mobile-cards admin-mobile-only">
+                          {lowStockProducts.slice(0, 5).map((p) => (
+                            <div key={p.id} className="admin-lowstock-card">
+                              <div className="admin-lowstock-card-top">
+                                <span className="admin-lowstock-name">{p.name}</span>
+                                <span className={`admin-stock-pill ${p.stock === 0 ? 'out' : 'low'}`}>
+                                  {p.stock === 0 ? '0 un. (Esgotado)' : `${p.stock} un.`}
+                                </span>
+                              </div>
+                              <div className="admin-lowstock-card-meta">
+                                <span><b>Cat:</b> {p.category}</span>
+                                <span><b>Mínimo:</b> {p.minimum || 1} un.</span>
+                              </div>
+                              <div className="admin-lowstock-card-actions">
+                                <button
+                                  type="button"
+                                  onClick={() => handleQuickStock(p.id, 1)}
+                                  className="admin-quick-add-btn"
+                                  title="Adicionar 1 unidade imediatamente no banco"
+                                >
+                                  +1 un. Entrada
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setStockModalProduct(p);
+                                    setStockMovementType('Entrada');
+                                    setStockDelta(5);
+                                  }}
+                                  className="admin-repor-lote-btn"
+                                >
+                                  Repor Lote
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Desktop / Tablet Table (>= 641px) */}
+                        <div className="admin-table-scroll-container admin-desktop-only">
+                          <table style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                             <thead>
                               <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
                                 <th style={{ padding: '8px 10px' }}>Equipamento</th>
                                 <th style={{ padding: '8px 10px' }}>Categoria</th>
-                                <th style={{ padding: '8px 10px' }}>Saldo Atual</th>
-                                <th style={{ padding: '8px 10px' }}>Mínimo</th>
-                                <th style={{ padding: '8px 10px', textAlign: 'right' }}>Reposição Rápida</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Saldo Atual</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Mínimo</th>
+                                <th style={{ padding: '8px 10px', textAlign: 'right', whiteSpace: 'nowrap' }}>Reposição Rápida</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -2310,18 +2350,18 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                                 <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                   <td style={{ padding: '10px', fontWeight: 700 }}>{p.name}</td>
                                   <td style={{ padding: '10px', color: '#64748b' }}>{p.category}</td>
-                                  <td style={{ padding: '10px' }}>
-                                    <span style={{ padding: '2px 8px', borderRadius: 12, backgroundColor: p.stock === 0 ? '#fee2e2' : '#fef3c7', color: p.stock === 0 ? '#dc2626' : '#d97706', fontWeight: 900 }}>
+                                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                                    <span className={`admin-stock-pill ${p.stock === 0 ? 'out' : 'low'}`}>
                                       {p.stock} un.
                                     </span>
                                   </td>
-                                  <td style={{ padding: '10px', color: '#64748b' }}>{p.minimum || 1} un.</td>
-                                  <td style={{ padding: '10px', textAlign: 'right' }}>
+                                  <td style={{ padding: '10px', color: '#64748b', whiteSpace: 'nowrap' }}>{p.minimum || 1} un.</td>
+                                  <td style={{ padding: '10px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                                     <div style={{ display: 'inline-flex', gap: 6 }}>
                                       <button
                                         type="button"
                                         onClick={() => handleQuickStock(p.id, 1)}
-                                        style={{ padding: '4px 8px', borderRadius: 6, backgroundColor: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', fontWeight: 800, fontSize: '0.72rem', cursor: 'pointer' }}
+                                        className="admin-quick-add-btn compact"
                                         title="Adicionar 1 unidade imediatamente no banco"
                                       >
                                         +1 un.
@@ -2333,7 +2373,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                                           setStockMovementType('Entrada');
                                           setStockDelta(5);
                                         }}
-                                        style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#071326', color: '#f5a800', border: 'none', fontWeight: 800, fontSize: '0.72rem', cursor: 'pointer' }}
+                                        className="admin-repor-lote-btn compact"
                                       >
                                         Repor Lote
                                       </button>
@@ -2349,12 +2389,12 @@ Aguardo confirmação e dados para pagamento / fatura!`;
 
                     {/* Recent Orders Overview */}
                     <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 20 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                        <h4 style={{ fontSize: '0.95rem', fontWeight: 900 }}>Últimas Encomendas Recebidas ({orders.length})</h4>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 14 }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 900, margin: 0 }}>Últimas Encomendas Recebidas ({orders.length})</h4>
                         <button
                           type="button"
                           onClick={() => setAdminTab('orders')}
-                          style={{ background: 'none', border: 'none', color: '#0284c7', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                          className="admin-alert-link-btn"
                         >
                           Ver todas as encomendas →
                         </button>
@@ -2363,24 +2403,24 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                       {orders.length === 0 ? (
                         <p style={{ color: '#64748b', fontSize: '0.82rem', padding: '12px 0' }}>Nenhuma encomenda registada no banco até o momento.</p>
                       ) : (
-                        <div style={{ overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                        <div className="admin-table-scroll-container">
+                          <table style={{ width: '100%', minWidth: 480, borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                             <thead>
                               <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                                <th style={{ padding: '8px 10px' }}>Código</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Código</th>
                                 <th style={{ padding: '8px 10px' }}>Cliente</th>
-                                <th style={{ padding: '8px 10px' }}>Total (AOA)</th>
-                                <th style={{ padding: '8px 10px' }}>Status</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Total (AOA)</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Status</th>
                               </tr>
                             </thead>
                             <tbody>
                               {orders.slice(0, 5).map((ord: any) => (
                                 <tr key={ord.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                  <td style={{ padding: '10px', fontWeight: 800, color: '#0284c7' }}>#{ord.id}</td>
+                                  <td style={{ padding: '10px', fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>#{ord.id}</td>
                                   <td style={{ padding: '10px' }}>{ord.customer || ord.customerName}</td>
-                                  <td style={{ padding: '10px', fontWeight: 800, color: '#10b981' }}>{formatKwanzas(ord.total)}</td>
-                                  <td style={{ padding: '10px' }}>
-                                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: '0.72rem', fontWeight: 800, backgroundColor: ord.status === 'Entregue' ? '#ecfdf5' : ord.status === 'Cancelado' ? '#fee2e2' : '#fef3c7', color: ord.status === 'Entregue' ? '#059669' : ord.status === 'Cancelado' ? '#dc2626' : '#d97706' }}>
+                                  <td style={{ padding: '10px', fontWeight: 800, color: '#10b981', whiteSpace: 'nowrap' }}>{formatKwanzas(ord.total)}</td>
+                                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: '0.72rem', fontWeight: 800, backgroundColor: ord.status === 'Entregue' ? '#ecfdf5' : ord.status === 'Cancelado' ? '#fee2e2' : '#fef3c7', color: ord.status === 'Entregue' ? '#059669' : ord.status === 'Cancelado' ? '#dc2626' : '#d97706', whiteSpace: 'nowrap' }}>
                                       {ord.status}
                                     </span>
                                   </td>
@@ -2446,16 +2486,83 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                       </select>
                     </div>
 
-                    {/* Products Table with Quick Stock Adjust */}
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                    {/* Mobile Products Cards (< 640px) */}
+                    <div className="admin-products-mobile-list admin-mobile-only" style={{ marginBottom: 16 }}>
+                      {paginatedAdminProducts.map((prod) => (
+                        <div key={prod.id} className="admin-product-mobile-card">
+                          <div className="admin-product-mobile-card-header">
+                            <img
+                              src={prod.image || prod.imageUrl || '/products/monitor-uti.png'}
+                              alt={prod.name}
+                              className="admin-product-mobile-thumb"
+                            />
+                            <div className="admin-product-mobile-info">
+                              <div className="admin-product-mobile-title">{prod.name}</div>
+                              <div className="admin-product-mobile-price">{formatKwanzas(prod.price)}</div>
+                            </div>
+                          </div>
+
+                          <div className="admin-product-mobile-row2">
+                            <span className="admin-product-mobile-cat">{prod.category}</span>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: isDarkMode ? '#0b172a' : '#f8fafc', padding: '3px 8px', borderRadius: 20, border: '1px solid #e2e8f0' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleQuickStock(prod.id, -1)}
+                                disabled={prod.stock <= 0}
+                                style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', backgroundColor: '#fee2e2', color: '#dc2626', cursor: prod.stock > 0 ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem', opacity: prod.stock <= 0 ? 0.35 : 1 }}
+                                title="Diminuir 1 un."
+                              >
+                                -
+                              </button>
+                              <span style={{ fontWeight: 900, fontSize: '0.85rem', minWidth: 26, textAlign: 'center', color: prod.stock === 0 ? '#dc2626' : isDarkMode ? '#f8fafc' : '#071326' }}>
+                                {prod.stock} un.
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleQuickStock(prod.id, 1)}
+                                style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', backgroundColor: '#ecfdf5', color: '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1rem' }}
+                                title="Aumentar 1 un."
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="admin-product-mobile-actions">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStockModalProduct(prod);
+                                setStockMovementType('Entrada');
+                                setStockDelta(5);
+                              }}
+                              className="admin-repor-lote-btn"
+                              style={{ padding: '8px 10px', fontSize: '0.74rem' }}
+                            >
+                              Ajustar Lote
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDetailProduct(prod)}
+                              style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #cbd5e1', backgroundColor: isDarkMode ? '#061124' : '#ffffff', color: isDarkMode ? '#cbd5e1' : '#0f172a', cursor: 'pointer', fontSize: '0.74rem', fontWeight: 700 }}
+                            >
+                              Ver Loja
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Products Table with Quick Stock Adjust (>= 641px) */}
+                    <div className="admin-table-scroll-container admin-desktop-only">
+                      <table style={{ width: '100%', minWidth: 680, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                         <thead>
                           <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
                             <th style={{ padding: '10px 12px' }}>Equipamento</th>
                             <th style={{ padding: '10px 12px' }}>Categoria</th>
-                            <th style={{ padding: '10px 12px' }}>Preço Unitário</th>
-                            <th style={{ padding: '10px 12px', textAlign: 'center' }}>Estoque em Banco</th>
-                            <th style={{ padding: '10px 12px', textAlign: 'right' }}>Ações Rápidas</th>
+                            <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Preço Unitário</th>
+                            <th style={{ padding: '10px 12px', textAlign: 'center', whiteSpace: 'nowrap' }}>Estoque em Banco</th>
+                            <th style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>Ações Rápidas</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2622,22 +2729,23 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     </div>
 
                     {/* Stock Movements Ledger Table */}
-                    <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 20, overflowX: 'auto' }}>
+                    <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 20 }}>
                       <h4 style={{ fontSize: '0.95rem', fontWeight: 900, marginBottom: 14 }}>Últimos Registros de Movimentação ({stockMovements.length})</h4>
                       {stockMovements.length === 0 ? (
                         <p style={{ color: '#64748b', fontSize: '0.82rem', padding: '12px 0' }}>Nenhuma movimentação manual ou venda registada ainda no banco.</p>
                       ) : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                          <thead>
-                            <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                              <th style={{ padding: '8px 10px' }}>Data / Hora</th>
-                              <th style={{ padding: '8px 10px' }}>Equipamento</th>
-                              <th style={{ padding: '8px 10px' }}>Variação</th>
-                              <th style={{ padding: '8px 10px' }}>Motivo</th>
-                              <th style={{ padding: '8px 10px' }}>Operador</th>
-                              <th style={{ padding: '8px 10px' }}>Ref / Pedido</th>
-                            </tr>
-                          </thead>
+                        <div className="admin-table-scroll-container">
+                          <table style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Data / Hora</th>
+                                <th style={{ padding: '8px 10px' }}>Equipamento</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Variação</th>
+                                <th style={{ padding: '8px 10px' }}>Motivo</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Operador</th>
+                                <th style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>Ref / Pedido</th>
+                              </tr>
+                            </thead>
                           <tbody>
                             {stockMovements.map((mov: any) => (
                               <tr key={mov.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
@@ -2661,10 +2769,11 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                             ))}
                           </tbody>
                         </table>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+              )}
 
                 {/* 4. ABA: ENCOMENDAS & GESTÃO DE FATURAS */}
                 {adminTab === 'orders' && (
@@ -2692,16 +2801,16 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                         <p style={{ fontSize: '0.8rem' }}>As encomendas emitidas na loja aparecerão listadas aqui para controle fiscal e logístico.</p>
                       </div>
                     ) : (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                      <div className="admin-table-scroll-container">
+                        <table style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                           <thead>
                             <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
-                              <th style={{ padding: '10px 12px' }}>Nº Encomenda</th>
-                              <th style={{ padding: '10px 12px' }}>Data / Hora</th>
+                              <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Nº Encomenda</th>
+                              <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Data / Hora</th>
                               <th style={{ padding: '10px 12px' }}>Cliente / Clínica</th>
                               <th style={{ padding: '10px 12px' }}>Destino</th>
-                              <th style={{ padding: '10px 12px' }}>Valor Total</th>
-                              <th style={{ padding: '10px 12px' }}>Status Atual</th>
+                              <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Valor Total</th>
+                              <th style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>Status Atual</th>
                             </tr>
                           </thead>
                           <tbody>
