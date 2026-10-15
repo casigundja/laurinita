@@ -1378,7 +1378,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
           <div className="store-search-container">
             <input
               type="search"
-              placeholder="O que você procura hoje? (ex: Monitor, Cama, Ecógrafo, Esterilizador...)"
+              placeholder="Buscar 80 equipamentos médicos e hospitalares..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="store-search-pill"

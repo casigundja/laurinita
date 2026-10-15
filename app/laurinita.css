@@ -1229,6 +1229,297 @@ html.dark .hero-showcase-card, body.dark .hero-showcase-card {
   .hero-whatsapp-float {
     display: none;
   }
+
+  /* 1. HEADER OPTIMIZATIONS (CLEAN 2-ROW MOBILE LAYOUT) */
+  .main-header-container {
+    flex-wrap: wrap !important;
+    padding: 10px 14px 12px 14px !important;
+    gap: 8px 12px !important;
+  }
+
+  .store-brand-link {
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .store-brand-logo-img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .store-brand-name {
+    font-size: 1.1rem !important;
+    line-height: 1 !important;
+  }
+
+  .store-brand-badge {
+    font-size: 0.62rem !important;
+    margin-top: 1px !important;
+  }
+
+  .store-header-actions {
+    gap: 6px !important;
+    margin-left: auto !important;
+  }
+
+  .store-action-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .store-user-btn {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .user-avatar-circle {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .store-user-btn .lucide-chevron-down {
+    display: none !important;
+  }
+
+  .store-cart-btn {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+  }
+
+  .cart-btn-price {
+    display: none !important;
+  }
+
+  .cart-badge-counter {
+    top: -6px !important;
+    right: -6px !important;
+    min-width: 17px !important;
+    height: 17px !important;
+    font-size: 0.62rem !important;
+  }
+
+  /* Full-width Search Bar on mobile row 2 */
+  .store-search-container {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 2px !important;
+  }
+
+  .store-search-pill {
+    height: 40px !important;
+    font-size: 0.82rem !important;
+    padding: 0 40px 0 14px !important;
+    border-radius: 12px !important;
+    background-color: #f1f5f9 !important;
+  }
+
+  /* Category pills bar touch scroll */
+  .store-cat-bar {
+    border-top: none !important;
+  }
+
+  .cat-bar-container {
+    padding: 0 10px !important;
+    gap: 4px !important;
+  }
+
+  .cat-scroll-arrow-btn {
+    display: none !important;
+  }
+
+  .cat-scroll-track {
+    padding: 8px 0 !important;
+    gap: 6px !important;
+  }
+
+  .cat-nav-pill {
+    font-size: 0.74rem !important;
+    padding: 5px 10px !important;
+  }
+
+  /* Vitrine Header */
+  .vitrine-section {
+    padding: 20px 12px !important;
+  }
+
+  .vitrine-header {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .vitrine-header-titles h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .vitrine-counter {
+    font-size: 0.76rem !important;
+  }
+
+  .vitrine-controls {
+    gap: 6px !important;
+  }
+
+  .vitrine-select-sort {
+    padding: 6px 10px !important;
+    font-size: 0.74rem !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  /* 2. PRODUCT CARDS (2 COLUMNS & COMPACT SCALING) */
+  .products-boti-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .boti-card {
+    border-radius: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.2s ease !important;
+  }
+
+  html.dark .boti-card {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    background-color: #0b172a !important;
+  }
+
+  /* Image Pod */
+  .product-image-pod {
+    height: 135px !important;
+    padding: 10px 8px !important;
+    border-radius: 16px 16px 0 0 !important;
+    background: radial-gradient(circle at 50% 60%, #ffffff 0%, #f8fafc 80%, #f1f5f9 100%) !important;
+  }
+
+  html.dark .product-image-pod {
+    background: radial-gradient(circle at 50% 60%, #1e293b 0%, #0f172a 100%) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .product-cutout-img {
+    max-height: 105px !important;
+    max-width: 95% !important;
+  }
+
+  .product-favorite-btn {
+    width: 26px !important;
+    height: 26px !important;
+    top: 6px !important;
+    right: 6px !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .product-favorite-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .product-discount-pill {
+    font-size: 0.55rem !important;
+    padding: 2px 5px !important;
+  }
+
+  /* Card Body */
+  .boti-card-body {
+    padding: 8px 8px 10px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    flex: 1 !important;
+  }
+
+  .boti-product-title {
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    min-height: 32px !important;
+    margin-bottom: 4px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+  }
+
+  /* Hide long technical spec paragraph on 2-col mobile cards */
+  .boti-product-desc {
+    display: none !important;
+  }
+
+  .boti-card-pricing {
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: 6px !important;
+    margin: 2px 0 6px 0 !important;
+  }
+
+  html.dark .boti-card-pricing {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .price-old {
+    font-size: 0.62rem !important;
+    display: block !important;
+    margin-bottom: 1px !important;
+  }
+
+  .price-current-row {
+    align-items: baseline !important;
+    gap: 3px !important;
+  }
+
+  .price-label {
+    font-size: 0.6rem !important;
+  }
+
+  .price-amount {
+    font-size: 0.85rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  /* Compact Mobile Actions */
+  .btn-comprar {
+    height: 32px !important;
+    padding: 5px 6px !important;
+    font-size: 0.7rem !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    gap: 4px !important;
+    width: 100% !important;
+    letter-spacing: 0 !important;
+  }
+
+  .btn-comprar svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .btn-adicionar-sacola {
+    height: 28px !important;
+    padding: 4px 6px !important;
+    font-size: 0.65rem !important;
+    border-radius: 8px !important;
+    margin-top: 4px !important;
+    gap: 4px !important;
+    width: 100% !important;
+  }
+
+  .btn-adicionar-sacola svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
 }
 
 /* ========================================================================= */
