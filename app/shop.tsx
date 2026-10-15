@@ -246,6 +246,10 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   const [adminCategory, setAdminCategory] = useState('Todos');
   const [adminPage, setAdminPage] = useState(1);
   const [adminRowsPerPage, setAdminRowsPerPage] = useState(15);
+  const [stockPage, setStockPage] = useState(1);
+  const [stockRowsPerPage, setStockRowsPerPage] = useState(15);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [ordersRowsPerPage, setOrdersRowsPerPage] = useState(15);
   const [newProductModalOpen, setNewProductModalOpen] = useState(false);
   const [newProdName, setNewProdName] = useState('');
   const [newProdCategory, setNewProdCategory] = useState('Análises Clínicas');
@@ -565,6 +569,42 @@ export default function Shop({ initialView = 'shop' }: { initialView?: 'shop' | 
   useEffect(() => {
     setAdminPage(1);
   }, [adminSearch, adminCategory, adminRowsPerPage]);
+
+  // Stock movements pagination computed values
+  const totalStockPages = useMemo(() => {
+    return Math.max(1, Math.ceil(stockMovements.length / stockRowsPerPage));
+  }, [stockMovements.length, stockRowsPerPage]);
+
+  const paginatedStockMovements = useMemo(() => {
+    const start = (stockPage - 1) * stockRowsPerPage;
+    return stockMovements.slice(start, start + stockRowsPerPage);
+  }, [stockMovements, stockPage, stockRowsPerPage]);
+
+  const startStockItem = useMemo(() => {
+    return stockMovements.length === 0 ? 0 : (stockPage - 1) * stockRowsPerPage + 1;
+  }, [stockMovements.length, stockPage, stockRowsPerPage]);
+
+  const endStockItem = useMemo(() => {
+    return Math.min(stockPage * stockRowsPerPage, stockMovements.length);
+  }, [stockMovements.length, stockPage, stockRowsPerPage]);
+
+  // Orders pagination computed values
+  const totalOrdersPages = useMemo(() => {
+    return Math.max(1, Math.ceil(orders.length / ordersRowsPerPage));
+  }, [orders.length, ordersRowsPerPage]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (ordersPage - 1) * ordersRowsPerPage;
+    return orders.slice(start, start + ordersRowsPerPage);
+  }, [orders, ordersPage, ordersRowsPerPage]);
+
+  const startOrdersItem = useMemo(() => {
+    return orders.length === 0 ? 0 : (ordersPage - 1) * ordersRowsPerPage + 1;
+  }, [orders.length, ordersPage, ordersRowsPerPage]);
+
+  const endOrdersItem = useMemo(() => {
+    return Math.min(ordersPage * ordersRowsPerPage, orders.length);
+  }, [orders.length, ordersPage, ordersRowsPerPage]);
 
   // Cart Calculations
   const cartLines = useMemo(() => {
@@ -2734,7 +2774,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                       {stockMovements.length === 0 ? (
                         <p style={{ color: '#64748b', fontSize: '0.82rem', padding: '12px 0' }}>Nenhuma movimentação manual ou venda registada ainda no banco.</p>
                       ) : (
-                        <div className="admin-table-scroll-container">
+                        <>
+                          <div className="admin-table-scroll-container">
                           <table style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse', fontSize: '0.8rem' }}>
                             <thead>
                               <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
@@ -2747,7 +2788,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                               </tr>
                             </thead>
                           <tbody>
-                            {stockMovements.map((mov: any) => (
+                            {paginatedStockMovements.map((mov: any) => (
                               <tr key={mov.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                 <td style={{ padding: '10px', color: '#64748b', whiteSpace: 'nowrap' }}>
                                   {mov.created ? new Date(mov.created).toLocaleString('pt-AO') : '—'}
@@ -2755,14 +2796,14 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                                 <td style={{ padding: '10px', fontWeight: 700 }}>
                                   {mov.name || (products.find((p) => p.id === mov.product_id)?.name || mov.product_id)}
                                 </td>
-                                <td style={{ padding: '10px' }}>
-                                  <span style={{ padding: '2px 8px', borderRadius: 10, fontWeight: 900, fontSize: '0.75rem', backgroundColor: mov.delta > 0 ? '#ecfdf5' : '#fee2e2', color: mov.delta > 0 ? '#059669' : '#dc2626' }}>
+                                <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                                  <span style={{ padding: '2px 8px', borderRadius: 10, fontWeight: 900, fontSize: '0.75rem', backgroundColor: mov.delta > 0 ? '#ecfdf5' : '#fee2e2', color: mov.delta > 0 ? '#059669' : '#dc2626', whiteSpace: 'nowrap' }}>
                                     {mov.delta > 0 ? `+${mov.delta}` : mov.delta} un.
                                   </span>
                                 </td>
                                 <td style={{ padding: '10px', color: isDarkMode ? '#cbd5e1' : '#334155' }}>{mov.reason}</td>
-                                <td style={{ padding: '10px', color: '#64748b', fontSize: '0.72rem' }}>{mov.actor}</td>
-                                <td style={{ padding: '10px', color: '#0284c7', fontSize: '0.72rem', fontWeight: 700 }}>
+                                <td style={{ padding: '10px', color: '#64748b', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>{mov.actor}</td>
+                                <td style={{ padding: '10px', color: '#0284c7', fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                                   {mov.order_id ? `#${mov.order_id}` : 'Manual'}
                                 </td>
                               </tr>
@@ -2770,7 +2811,76 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                           </tbody>
                         </table>
                       </div>
-                    )}
+
+                      {/* Pagination Toolbar with navigation arrows */}
+                      <div className="admin-pagination-bar">
+                        <div className="admin-pagination-left">
+                          <span className="admin-pagination-label">Linhas por página:</span>
+                          <select
+                            className="admin-pagination-select"
+                            value={stockRowsPerPage}
+                            onChange={(e) => {
+                              setStockRowsPerPage(Number(e.target.value));
+                              setStockPage(1);
+                            }}
+                          >
+                            <option value={10}>10</option>
+                            <option value={15}>15</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                          </select>
+                        </div>
+
+                        <div className="admin-pagination-range">
+                          {startStockItem}–{endStockItem} de {stockMovements.length}
+                        </div>
+
+                        <div className="admin-pagination-nav">
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setStockPage(1)}
+                            disabled={stockPage <= 1}
+                            title="Primeira página"
+                            aria-label="Primeira página"
+                          >
+                            <ChevronFirst size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setStockPage((prev) => Math.max(1, prev - 1))}
+                            disabled={stockPage <= 1}
+                            title="Página anterior"
+                            aria-label="Página anterior"
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setStockPage((prev) => Math.min(totalStockPages, prev + 1))}
+                            disabled={stockPage >= totalStockPages}
+                            title="Próxima página"
+                            aria-label="Próxima página"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setStockPage(totalStockPages)}
+                            disabled={stockPage >= totalStockPages}
+                            title="Última página"
+                            aria-label="Última página"
+                          >
+                            <ChevronLast size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                   </div>
                 </div>
               )}
@@ -2801,7 +2911,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                         <p style={{ fontSize: '0.8rem' }}>As encomendas emitidas na loja aparecerão listadas aqui para controle fiscal e logístico.</p>
                       </div>
                     ) : (
-                      <div className="admin-table-scroll-container">
+                      <>
+                        <div className="admin-table-scroll-container">
                         <table style={{ width: '100%', minWidth: 620, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                           <thead>
                             <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', textAlign: 'left' }}>
@@ -2814,7 +2925,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                             </tr>
                           </thead>
                           <tbody>
-                            {orders.map((ord: any) => (
+                            {paginatedOrders.map((ord: any) => (
                               <tr key={ord.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                 <td style={{ padding: '12px', fontWeight: 900, color: '#0284c7' }}>
                                   #{ord.id}
@@ -2859,7 +2970,76 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                           </tbody>
                         </table>
                       </div>
-                    )}
+
+                      {/* Pagination Toolbar with navigation arrows */}
+                      <div className="admin-pagination-bar">
+                        <div className="admin-pagination-left">
+                          <span className="admin-pagination-label">Linhas por página:</span>
+                          <select
+                            className="admin-pagination-select"
+                            value={ordersRowsPerPage}
+                            onChange={(e) => {
+                              setOrdersRowsPerPage(Number(e.target.value));
+                              setOrdersPage(1);
+                            }}
+                          >
+                            <option value={10}>10</option>
+                            <option value={15}>15</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                          </select>
+                        </div>
+
+                        <div className="admin-pagination-range">
+                          {startOrdersItem}–{endOrdersItem} de {orders.length}
+                        </div>
+
+                        <div className="admin-pagination-nav">
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setOrdersPage(1)}
+                            disabled={ordersPage <= 1}
+                            title="Primeira página"
+                            aria-label="Primeira página"
+                          >
+                            <ChevronFirst size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setOrdersPage((prev) => Math.max(1, prev - 1))}
+                            disabled={ordersPage <= 1}
+                            title="Página anterior"
+                            aria-label="Página anterior"
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setOrdersPage((prev) => Math.min(totalOrdersPages, prev + 1))}
+                            disabled={ordersPage >= totalOrdersPages}
+                            title="Próxima página"
+                            aria-label="Próxima página"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-page-nav-btn"
+                            onClick={() => setOrdersPage(totalOrdersPages)}
+                            disabled={ordersPage >= totalOrdersPages}
+                            title="Última página"
+                            aria-label="Última página"
+                          >
+                            <ChevronLast size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                   </div>
                 )}
               </div>
