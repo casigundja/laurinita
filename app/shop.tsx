@@ -3563,7 +3563,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
             <h4>Apoio ao Cliente</h4>
             <ul>
               <li><a href={`https://wa.me/${STORE_INFO.whatsappNumber}`} target="_blank" rel="noopener noreferrer">Suporte Técnico WhatsApp</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); setView('admin'); }}>Acesso Restrito Dashboard</a></li>
             </ul>
           </div>
 
@@ -3592,10 +3591,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                 <Building2 size={14} color="#f5a800" style={{ flexShrink: 0 }} />
                 <span>Transferência Bancária (IBAN)</span>
               </li>
-              <li style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <FileText size={14} color="#f5a800" style={{ flexShrink: 0 }} />
-                <span>Facturação a 30 dias (Empresas)</span>
-              </li>
             </ul>
           </div>
         </div>
@@ -3603,9 +3598,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
         <div className="footer-bottom-strip">
           <div>
             © 2026 Laurinita Distribuidora Ltda. Todos os direitos reservados.
-          </div>
-          <div style={{ display: 'flex', gap: 14 }}>
-            <span>Luanda · Huambo</span>
           </div>
         </div>
       </footer>
