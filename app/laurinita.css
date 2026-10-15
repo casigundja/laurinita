@@ -1520,6 +1520,219 @@ html.dark .hero-showcase-card, body.dark .hero-showcase-card {
     width: 11px !important;
     height: 11px !important;
   }
+
+  /* 3. ADMIN DASHBOARD MOBILE OPTIMIZATIONS */
+  .admin-dashboard-container {
+    padding: 14px 10px 40px 10px !important;
+  }
+
+  .admin-dashboard-header-row {
+    margin-bottom: 12px !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+  }
+
+  .admin-dashboard-title {
+    font-size: 1.25rem !important;
+  }
+
+  .admin-sync-btn {
+    padding: 6px 12px !important;
+    font-size: 0.72rem !important;
+    border-radius: 9px !important;
+    height: 30px !important;
+  }
+
+  .admin-sync-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* Compact 2-column metrics grid on mobile (substitui cards gigantes verticais) */
+  .admin-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .admin-metric-card {
+    padding: 10px 11px !important;
+    border-radius: 14px !important;
+  }
+
+  .admin-metric-card-top {
+    margin-bottom: 4px !important;
+  }
+
+  .admin-metric-label {
+    font-size: 0.60rem !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  .admin-metric-icon-wrap {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 6px !important;
+  }
+
+  .admin-metric-icon-wrap svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .admin-metric-num {
+    font-size: 1.2rem !important;
+    margin: 0 !important;
+  }
+
+  .admin-metric-num-currency {
+    font-size: 0.88rem !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .admin-metric-desc {
+    font-size: 0.58rem !important;
+    margin-top: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Admin tabs on mobile */
+  .admin-tabs-wrapper {
+    top: 0 !important;
+  }
+
+  .admin-tabs-container {
+    padding: 6px 10px !important;
+    gap: 8px !important;
+  }
+
+  .admin-tab-btn {
+    padding: 6px 10px !important;
+    font-size: 0.72rem !important;
+    border-radius: 9px !important;
+    gap: 5px !important;
+  }
+
+  .admin-tab-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .admin-tab-badge {
+    font-size: 0.62rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .admin-back-btn {
+    padding: 6px 10px !important;
+    font-size: 0.72rem !important;
+    border-radius: 9px !important;
+    gap: 5px !important;
+  }
+}
+
+/* ========================================================================= */
+/* ADMIN DASHBOARD BASE STYLES                                               */
+/* ========================================================================= */
+.admin-dashboard-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 60px 24px;
+}
+
+.admin-dashboard-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.admin-dashboard-title {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+html.dark .admin-dashboard-title {
+  color: #f8fafc;
+}
+
+.admin-sync-btn {
+  width: auto !important;
+  padding: 10px 18px !important;
+  gap: 8px !important;
+  border-radius: 12px !important;
+}
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.admin-metric-card {
+  background-color: #ffffff;
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+html.dark .admin-metric-card {
+  background-color: #0d1e38;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-metric-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.admin-metric-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-metric-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-metric-num {
+  font-size: 1.9rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.admin-metric-num-currency {
+  font-size: 1.55rem;
+}
+
+.admin-metric-desc {
+  font-size: 0.72rem;
+  color: #64748b;
+  display: block;
+  margin-top: 6px;
 }
 
 /* ========================================================================= */

@@ -2045,89 +2045,88 @@ Aguardo confirmação e dados para pagamento / fatura!`;
               </div>
 
               {/* Dashboard Content */}
-              <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 60px 24px' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+              <div className="admin-dashboard-container">
+                <div className="admin-dashboard-header-row">
                   <div>
-                    <h2 style={{ fontSize: '1.7rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
+                    <h2 className="admin-dashboard-title">
                       Painel de Gestão
                     </h2>
                   </div>
 
                   <button
                     type="button"
-                    className="btn-comprar"
-                    style={{ width: 'auto', padding: '10px 18px', gap: 8, borderRadius: 12 }}
+                    className="btn-comprar admin-sync-btn"
                     onClick={() => {
                       fetchDbData();
                       setNotice('Dados sincronizados com o banco de dados!');
                     }}
                   >
-                    <RefreshCw size={15} />
+                    <RefreshCw size={14} />
                     <span>Sincronizar Banco</span>
                   </button>
                 </div>
 
                 {/* Dashboard Metrics - 4 Responsive Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 18, marginBottom: 30 }}>
-                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div className="admin-metrics-grid">
+                  <div className="admin-metric-card">
+                    <div className="admin-metric-card-top">
+                      <span className="admin-metric-label">
                         Equipamentos
                       </span>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Package size={18} />
+                      <div className="admin-metric-icon-wrap" style={{ backgroundColor: '#fef3c7', color: '#d97706' }}>
+                        <Package size={16} />
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#f5a800', lineHeight: 1.1, margin: 0 }}>{products.length}</h3>
-                    <span style={{ fontSize: '0.72rem', color: '#10b981', display: 'block', marginTop: 6 }}>
-                      Persistidos no banco SQLite / D1
+                    <h3 className="admin-metric-num" style={{ color: '#f5a800' }}>{products.length}</h3>
+                    <span className="admin-metric-desc" style={{ color: '#10b981' }}>
+                      Persistidos no SQLite
                     </span>
                   </div>
 
-                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <div className="admin-metric-card">
+                    <div className="admin-metric-card-top">
+                      <span className="admin-metric-label">
                         Total em Estoque
                       </span>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Activity size={18} />
+                      <div className="admin-metric-icon-wrap" style={{ backgroundColor: '#ecfdf5', color: '#059669' }}>
+                        <Activity size={16} />
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#059669', lineHeight: 1.1, margin: 0 }}>{totalInventoryUnits} un.</h3>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
-                      Unidades físicas disponíveis
+                    <h3 className="admin-metric-num" style={{ color: '#059669' }}>{totalInventoryUnits} un.</h3>
+                    <span className="admin-metric-desc">
+                      Físicos disponíveis
                     </span>
                   </div>
 
-                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Encomendas Emitidas
+                  <div className="admin-metric-card">
+                    <div className="admin-metric-card-top">
+                      <span className="admin-metric-label">
+                        Encomendas
                       </span>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <ClipboardList size={18} />
+                      <div className="admin-metric-icon-wrap" style={{ backgroundColor: '#e0f2fe', color: '#0284c7' }}>
+                        <ClipboardList size={16} />
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0284c7', lineHeight: 1.1, margin: 0 }}>{orders.length}</h3>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
-                      Faturas proforma registadas
+                    <h3 className="admin-metric-num" style={{ color: '#0284c7' }}>{orders.length}</h3>
+                    <span className="admin-metric-desc">
+                      Proformas emitidas
                     </span>
                   </div>
 
-                  <div style={{ backgroundColor: isDarkMode ? '#0d1e38' : '#ffffff', padding: '20px 22px', borderRadius: 18, border: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0', boxShadow: '0 4px 14px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Volume Financeiro
+                  <div className="admin-metric-card">
+                    <div className="admin-metric-card-top">
+                      <span className="admin-metric-label">
+                        Volume Total
                       </span>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#fef3c7', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <FileText size={18} />
+                      <div className="admin-metric-icon-wrap" style={{ backgroundColor: '#fef3c7', color: '#b45309' }}>
+                        <FileText size={16} />
                       </div>
                     </div>
-                    <h3 style={{ fontSize: '1.55rem', fontWeight: 900, color: '#10b981', lineHeight: 1.1, margin: 0 }}>
+                    <h3 className="admin-metric-num admin-metric-num-currency" style={{ color: '#10b981' }}>
                       {formatKwanzas(orders.reduce((acc, o) => acc + o.total, 0))}
                     </h3>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: 6 }}>
-                      Valor comercial faturado
+                    <span className="admin-metric-desc">
+                      Total faturado
                     </span>
                   </div>
                 </div>
