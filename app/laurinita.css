@@ -1632,6 +1632,83 @@ html.dark .hero-showcase-card, body.dark .hero-showcase-card {
     border-radius: 9px !important;
     gap: 5px !important;
   }
+
+  /* 4. INSTITUTIONAL FOOTER COMPACT MOBILE LAYOUT */
+  .store-footer {
+    padding: 22px 14px 18px 14px !important;
+  }
+
+  .footer-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px 12px !important;
+  }
+
+  /* 1. Brand: spans both columns on row 1 */
+  .footer-container > .footer-col:nth-child(1) {
+    grid-column: 1 / -1 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .footer-brand-title {
+    font-size: 0.94rem !important;
+    margin-bottom: 3px !important;
+  }
+
+  .footer-brand-desc {
+    font-size: 0.74rem !important;
+    line-height: 1.4 !important;
+    color: #64748b !important;
+  }
+
+  /* 2. Apoio ao Cliente (col 1) & 4. Formas de Pagamento (col 2) */
+  .footer-container > .footer-col:nth-child(2) {
+    grid-column: 1 !important;
+  }
+
+  .footer-container > .footer-col:nth-child(4) {
+    grid-column: 2 !important;
+  }
+
+  /* 3. Sede & Contactos: spans both columns on row 3 */
+  .footer-container > .footer-col:nth-child(3) {
+    grid-column: 1 / -1 !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: 10px !important;
+    margin-top: 2px !important;
+  }
+
+  html.dark .footer-container > .footer-col:nth-child(3) {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .footer-col h4 {
+    font-size: 0.78rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .footer-col ul {
+    gap: 5px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .footer-col ul li {
+    font-size: 0.72rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .footer-col ul li svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .footer-bottom-strip {
+    margin: 16px auto 0 auto !important;
+    padding-top: 10px !important;
+    font-size: 0.68rem !important;
+    gap: 4px !important;
+    text-align: center !important;
+    flex-direction: column !important;
+  }
 }
 
 /* ========================================================================= */
