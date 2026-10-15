@@ -1139,7 +1139,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       kicker: 'DESTAQUE HOSPITALAR • UTI & EMERGÊNCIA',
       title: 'Monitor Multiparamétrico',
       titleHighlight: 'UTI 12.1" COLORIDO',
-      desc: 'Medição em tempo real de ECG, SpO2, NIBP, Frequência Respiratória e Temperatura com alarmes sonoros e visuais. Homologado para Unidades de Cuidados Intensivos em Angola.',
+      desc: 'Medição contínua de ECG, SpO2, NIBP e sinais vitais homologado para UTI.',
+      shortDesc: 'Sinais vitais em tempo real (ECG, SpO2, NIBP) para UTI.',
       price: '3.850.000,00 AOA',
       image: '/products/monitor-uti.png',
       productSlug: 'monitor-de-sinais-vitais',
@@ -1149,7 +1150,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       kicker: 'ANÁLISES CLÍNICAS & LABORATÓRIO',
       title: 'Microscópio Biológico',
       titleHighlight: 'COM TELA LCD INTEGRADA',
-      desc: 'Óptica acromática de alta precisão, ampliação até 2500x, ecrã digital LCD integrado para visualização em grupo e diagnóstico celular com laudo imediato.',
+      desc: 'Óptica acromática até 2500x com ecrã digital LCD integrado para laudo imediato.',
+      shortDesc: 'Óptica acromática 2500x com tela LCD digital integrada.',
       price: '620.000,00 AOA',
       image: '/products/microscopio-lcd.png',
       productSlug: 'microscopio-biologico-lcd',
@@ -1159,7 +1161,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
       kicker: 'DIAGNÓSTICO & IMAGIOLOGIA CLÍNICA',
       title: 'Ecógrafo Doppler Colorido',
       titleHighlight: 'PORTÁTIL MULTIDISCIPLINAR',
-      desc: 'Sondas convexa e linear de alta frequência, ecrã antirreflexo de 15 polegadas, pacote completo de ginecologia, cardiologia e obstetrícia com fatura formal com NIF. Entrega garantida e faturação em Luanda por 12.400.000,00 AOA.',
+      desc: 'Sondas convexa e linear de alta frequência para cardiologia e obstetrícia.',
+      shortDesc: 'Ecógrafo portátil com sondas convexa e linear.',
       price: '12.400.000,00 AOA',
       image: '/products/ecografo-mindray.png',
       productSlug: 'ecografo-doppler-colorido',
@@ -1585,7 +1588,8 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                         <span>{slide.titleHighlight}</span>
                       </h1>
                       <p className="hero-slide-desc">
-                        {slide.desc} Entrega garantida e faturação em Luanda por <strong>{slide.price}</strong>.
+                        <span className="hero-desc-desktop">{slide.desc} Faturação oficial em Luanda por <strong>{slide.price}</strong>.</span>
+                        <span className="hero-desc-mobile">{slide.shortDesc}</span>
                       </p>
                       <div>
                         <button
@@ -1596,8 +1600,9 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                             setNotice(`Filtro "${slide.category}" ativado.`);
                           }}
                         >
-                          <span>Ver Equipamento no Catálogo</span>
-                          <ChevronRight size={16} />
+                          <span>Ver no Catálogo</span>
+                          <span className="hero-cta-price-tag">{slide.price}</span>
+                          <ChevronRight size={15} />
                         </button>
                       </div>
                     </div>
