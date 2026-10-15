@@ -500,7 +500,7 @@ export async function POST(req: Request) {
     // -------------------------------------------------------------
     if (body.action === 'seed') {
       if (currentUser.role !== 'admin') {
-        return json({ error: 'Apenas Administrador Geral pode re-sincronizar o banco de dados.' }, 403);
+        return json({ error: 'Apenas Administradores podem re-sincronizar o banco de dados.' }, 403);
       }
 
       const batchStatements: any[] = [];

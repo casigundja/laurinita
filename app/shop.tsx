@@ -1425,7 +1425,7 @@ Aguardo confirmação e dados para pagamento / fatura!`;
                     {currentUser ? `Olá, ${currentUser.name.split(' ')[0]}` : 'Entrar no Sistema'}
                   </div>
                   <div className="user-btn-role">
-                    {currentUser ? ROLE_PERMISSIONS[currentUser.role]?.badgeLabel : 'Painel Geral'}
+                    Painel Geral
                   </div>
                 </div>
                 <ChevronDown size={12} color="#94a3b8" />
@@ -1919,39 +1919,6 @@ Aguardo confirmação e dados para pagamento / fatura!`;
             )}
           </section>
 
-          {/* ========================================================================= */}
-          {/* 8. CONSULTATIVE B2B BANNER (PROPOSTAS PARA CLÍNICAS & HOSPITAIS)          */}
-          {/* ========================================================================= */}
-          <section style={{ padding: '0 20px' }}>
-            <div className="boti-quote-banner">
-              <div>
-                <span className="b2b-kicker">Cotações Hospitalares & Fornecimento em Lote</span>
-                <h3 className="b2b-title">Precisa de Equipar uma Clínica ou Hospital em Angola?</h3>
-                <p className="b2b-desc">
-                  Elaboramos cadernos de encargos completos com Factura Proforma detalhada, prazos de entrega, certificações sanitárias internacionais e opções de montagem local.
-                </p>
-              </div>
-
-              <div className="b2b-actions">
-                <a
-                  href={`https://wa.me/${STORE_INFO.whatsappNumber}?text=Olá!%20Gostaria%20de%20uma%20cotação%20corporativa%20em%20lote%20para%20a%20minha%20clínica/hospital.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-b2b-whatsapp"
-                >
-                  <MessageCircle size={18} />
-                  <span>Falar com Consultor Hospitalar</span>
-                </a>
-                <button
-                  type="button"
-                  className="btn-b2b-proforma"
-                  onClick={() => setCheckoutModalOpen(true)}
-                >
-                  Solicitar Proforma Direta
-                </button>
-              </div>
-            </div>
-          </section>
         </main>
       ) : (
         /* ========================================================================= */
